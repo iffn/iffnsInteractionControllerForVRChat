@@ -1,14 +1,13 @@
-﻿using Newtonsoft.Json;
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDKBase;
 
-namespace CursedCursor
+namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class ScreenCursor : UdonSharpBehaviour
+    public class InteractionController : UdonSharpBehaviour
     {
         /*
         Created with additional inputs from KitKat
