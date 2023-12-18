@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDKBase;
+using VRC.Udon.Common;
 
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
@@ -26,18 +27,36 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] Transform referenceTransform;
 
         //Fixed variables
+        bool useIsGrab;
         bool inVR;
         VRCPlayerApi localPlayer;
+        
+        Vector3 leftHandIndexInteractionOffset;
+        Vector3 rightHandIndexInteractionOffset;
+        Vector3 leftHandPalmInteractionOffset;
+        Vector3 rightHandPalmInteractionOffset;
+        bool triggerHoldBehavior = true;
+        bool grabHoldBehavior = true;
+
 
         //Runtime variables General
         Transform previousObject;
 
         //Runtime variables VR
-        Vector3 leftHandInteractionOffset;
-        Vector3 rightHandInteractionOffset;
-        Vector3 leftHandInteractionPosition;
-        Vector3 rightHandInteractionPosition;
-        
+        Vector3 leftHandIndexInteractionPosition;
+        Vector3 rightHandIndexInteractionPosition;
+        Vector3 leftHandPalmInteractionPosition;
+        Vector3 rightHandPalmInteractionPosition;
+        bool leftIndexActive = false;
+        bool leftPalmActive = false;
+        bool rightIndexActive = false;
+        bool rightPalmActive = false;
+        bool leftIndexChange = false;
+        bool rightIndexChange = false;
+        bool leftPalmChange = false;
+        bool rightPalmChange = false;
+
+
         //Runtime variables Desktop
         Vector2 cursorPosition;
         const int canvasSizeY = 540;
@@ -55,7 +74,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 referenceTransform = value;
             }
         }
+        
+        //Internal function
 
+        //Unity functions
         private void Start()
         {
             localPlayer = Networking.LocalPlayer;
@@ -69,7 +91,11 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         {
             if (inVR)
             {
+                VRCPlayerApi.TrackingData leftHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
+                VRCPlayerApi.TrackingData rightHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
 
+                leftHandIndexInteractionPosition = leftHand.position + leftHand.rotation * leftHandPalmInteractionOffset;
+                rightHandIndexInteractionPosition = rightHand.position + rightHand.rotation * rightHandPalmInteractionOffset;
             }
             else
             {
@@ -199,6 +225,67 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
 
             previousObject = newObject;
+        }
+
+        //VRChat functions
+        public override void InputUse(bool value, UdonInputEventArgs args)
+        {
+            if (!inVR) return;
+
+            switch (args.handType)
+            {
+                case HandType.RIGHT:
+                    if (rightIndexActive != value) rightIndexChange = true;
+                    rightIndexActive = value;
+                    break;
+                case HandType.LEFT:
+                    if (leftIndexActive != value) leftIndexChange = true;
+                    leftIndexActive = value;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public override void InputGrab(bool value, UdonInputEventArgs args)
+        {
+            if (!inVR) return;
+
+            if (!useIsGrab)
+            {
+                switch (args.handType)
+                {
+                    case HandType.RIGHT:
+                        if (rightPalmActive != value) rightPalmChange = true;
+                        rightPalmActive = value;
+                        break;
+                    case HandType.LEFT:
+                        if (leftPalmActive != value) leftPalmChange = true;
+                        leftPalmActive = value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public override void InputDrop(bool value, UdonInputEventArgs args)
+        {
+            if (!inVR) return;
+
+            switch (args.handType)
+            {
+                case HandType.RIGHT:
+                    if (rightPalmActive != value) rightPalmChange = true;
+                    rightPalmActive = value;
+                    break;
+                case HandType.LEFT:
+                    if (leftPalmActive != value) leftPalmChange = true;
+                    leftPalmActive = value;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
