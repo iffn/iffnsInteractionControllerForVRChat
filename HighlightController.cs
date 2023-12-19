@@ -6,6 +6,14 @@ using VRC.Udon;
 
 public class HighlightController : UdonSharpBehaviour
 {
+    public bool Highlight
+    {
+        set
+        {
+
+        }
+    }
+
     void Start()
     {
         

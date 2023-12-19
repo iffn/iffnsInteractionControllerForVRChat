@@ -30,6 +30,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         bool useIsGrab;
         bool inVR;
         VRCPlayerApi localPlayer;
+        float vrInteractionDistance;
         
         Vector3 leftHandIndexInteractionOffset;
         Vector3 rightHandIndexInteractionOffset;
@@ -55,7 +56,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         bool rightIndexChange = false;
         bool leftPalmChange = false;
         bool rightPalmChange = false;
-
+        HighlightController leftHandObject;
+        HighlightController rightHandObject;
 
         //Runtime variables Desktop
         Vector2 cursorPosition;
@@ -174,13 +176,49 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
+        HighlightController InteractWithObject(Vector3 position, bool inputActive, bool inputChange)
+        {
+            HighlightController controller = GetInteractedObject(position);
+
+            if (controller == null) return null;
+
+            //Interaction logic
+            //Highlight on overlap
+            if (!inputActive)
+            {
+                controller.Highlight = true;
+            }
+            else if (inputChange)
+            {
+                controller.Highlight = false;
+            }
+
+            //Disable highlight on interaction
+
+            return controller;
+        }
+
+        HighlightController GetInteractedObject(Vector3 position)
+        {
+            Collider[] colliders = Physics.OverlapSphere(position, vrInteractionDistance);
+
+            foreach(Collider collider in colliders)
+            {
+                HighlightController potentialController = collider.transform.GetComponent<HighlightController>();
+
+                if (potentialController != null) return potentialController;
+            }
+
+            return null;
+        }
+
         private void FixedUpdate()
         {
             Transform newObject = null;
 
             if (inVR)
             {
-                
+                HighlightController newLeftPalmObject = InteractWithObject(leftHandPalmInteractionPosition, leftPalmActive, leftPalmChange);
             }
             else
             {
