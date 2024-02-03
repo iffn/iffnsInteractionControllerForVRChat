@@ -41,22 +41,24 @@ public class LinearSliderInteractor : InteractionElement
         }
         else
         {
-            defaultOffset = GetCurrentDeskopValue();
+            defaultOffset = GetCurrentDesktopValue();
         }
     }
 
-    float GetCurrentDeskopValue()
+    float GetCurrentDesktopValue()
     {
         Vector3 worldRayOrigin = linkedInteractionController.WorldRayOrigin;
         Vector3 worldRayDirection = linkedInteractionController.WorldRayDirection;
 
-        Vector3 planeNormal = Vector3.Cross(transform.forward, localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Origin).rotation * Vector3.right);
+        Vector3 planeSideDirection = Vector3.Cross(transform.forward, worldRayDirection);
+
+        Vector3 planeNormal = Vector3.Cross(transform.forward, planeSideDirection);
 
         Plane plane = new Plane(planeNormal, transform.position);
 
         Ray selectionRay = new Ray(worldRayOrigin, worldRayDirection);
 
-        plane.Raycast(selectionRay, out float rayLength);
+        if(!plane.Raycast(selectionRay, out float rayLength)) return syncedValue;
 
         Vector3 worldInteractionPoint = worldRayOrigin + worldRayDirection.normalized * rayLength;
 
@@ -69,7 +71,7 @@ public class LinearSliderInteractor : InteractionElement
     {
         if (!inputActive) return;
 
-        float rawValue = GetCurrentDeskopValue();
+        float rawValue = GetCurrentDesktopValue();
 
         float offset = rawValue - defaultOffset;
 
