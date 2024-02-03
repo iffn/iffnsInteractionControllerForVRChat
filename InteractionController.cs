@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿using JetBrains.Annotations;
+using UdonSharp;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,8 +9,11 @@ using VRC.Udon.Common;
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [DefaultExecutionOrder(ExecutionOrder)]
     public class InteractionController : UdonSharpBehaviour
     {
+        [PublicAPI] public const int ExecutionOrder = 0;
+
         /*
         Created with additional inputs from KitKat
         
@@ -66,8 +70,25 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         bool calibrated = false;
         Vector3 localRayOrigin;
         Vector3 localRayDirection;
-        bool isCasting = true;
 
+        public Vector3 WorldRayOrigin
+        {
+            get
+            {
+                return referenceTransform.InverseTransformPoint(localRayOrigin);
+            }
+        }
+
+        public Vector3 WorldRayDirection
+        {
+            get
+            {
+                return referenceTransform.TransformDirection(localRayDirection);
+            }
+        }
+
+        
+        bool isCasting = true;
 
         public Transform ReferenceTransform
         {
@@ -224,7 +245,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             {
                 if (isCasting)
                 {
-                    Ray ray = new Ray(referenceTransform.TransformPoint(localRayOrigin), referenceTransform.TransformDirection(localRayDirection));
+                    Ray ray = new Ray(WorldRayOrigin, WorldRayDirection);
 
                     if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
                     {
