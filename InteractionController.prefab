@@ -329,10 +329,12 @@ MonoBehaviour:
   referenceTransform: {fileID: 0}
   interactionMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 262144
   isCastingInDesktop: 1
   previousDesktopElement: {fileID: 0}
   newDesktopElement: {fileID: 0}
+  desktopInputActive: 0
+  desktopInputChange: 0
 --- !u!114 &1967133745887976165
 MonoBehaviour:
   m_ObjectHideFlags: 0
