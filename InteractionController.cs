@@ -1,9 +1,13 @@
-﻿using JetBrains.Annotations;
+﻿using BestHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO.Pem;
+using JetBrains.Annotations;
+using System;
 using UdonSharp;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 using VRC.SDKBase;
+using VRC.SDKBase.Editor;
 using VRC.Udon.Common;
 
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
@@ -29,6 +33,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] private float cursorSpeedUI;
         [SerializeField] Camera linkedGrabCamera;
         [SerializeField] Transform referenceTransform;
+        [SerializeField] LayerMask interactionMask;
 
         //Fixed variables
         bool useIsGrab;
@@ -44,9 +49,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         bool grabHoldBehavior = true;
 
 
-        //Runtime variables General
-        Transform previousObject;
-
         //Runtime variables VR
         Vector3 leftHandIndexInteractionPosition;
         Vector3 rightHandIndexInteractionPosition;
@@ -60,10 +62,15 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         bool rightIndexChange = false;
         bool leftPalmChange = false;
         bool rightPalmChange = false;
-        HighlightController leftHandObject;
-        HighlightController rightHandObject;
+        InteractionElement leftHandObject;
+        InteractionElement rightHandObject;
 
         //Runtime variables Desktop
+        public bool isCastingInDesktop = true;
+        public InteractionElement previousDesktopElement;
+        public InteractionElement newDesktopElement;
+        public bool desktopInputActive = false;
+        public bool desktopInputChange = false;
         Vector2 cursorPosition;
         const int canvasSizeY = 540;
         const float halfDeg2Rad = Mathf.Deg2Rad * 0.5f;
@@ -88,7 +95,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         }
 
         
-        bool isCasting = true;
 
         public Transform ReferenceTransform
         {
@@ -107,6 +113,46 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             inVR = localPlayer.IsUserInVR();
 
             if(referenceTransform == null) referenceTransform = transform;
+        }
+
+        void UpdateInteraction(InteractionElement previousElement, InteractionElement newElement, bool inputActive, bool inputChange)
+        {
+            if (!inputActive)
+            {
+                //ToDo: More complex highlight logic to prevent shutting off and on if needed
+                if (previousElement) previousElement.Highlight = false;
+                if (newElement) newElement.Highlight = true;
+
+                if (inputChange)
+                {
+                    if(previousElement) previousElement.InteractionStop();
+                }
+            }
+            else
+            {
+                if (inputChange)
+                {
+                    if(previousElement) previousElement.InteractionStart(this);
+                }
+            }
+        }
+
+        private void Update()
+        {
+            if (inVR)
+            {
+
+            }
+            else
+            {
+                UpdateInteraction(previousDesktopElement, newDesktopElement, desktopInputActive, desktopInputChange);
+
+                isCastingInDesktop = !desktopInputActive;
+
+                if(!desktopInputActive) previousDesktopElement = newDesktopElement;
+
+                desktopInputChange = false;
+            }
         }
 
         //public override void PostLateUpdate()
@@ -144,14 +190,14 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
                     if (!calibrated)
                     {
-                        isCasting = false;
+                        isCastingInDesktop = false;
                         if (Input.GetMouseButtonDown(0))
                         {
                             float uiSensitivityX = uiCalibrator.localPosition.x / cursorPositionActual.x;
                             float uiSensitivityY = uiCalibrator.localPosition.y / cursorPositionActual.y;
                             cursorSpeedUI *= (uiSensitivityX + uiSensitivityY) / 2;
                             calibrated = true;
-                            isCasting = true;
+                            isCastingInDesktop = true;
                             uiCalibrator.gameObject.SetActive(false);
                             uiCursor.gameObject.SetActive(true);
                         }
@@ -187,7 +233,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 }
                 else
                 {
-                    isCasting = true;
+                    isCastingInDesktop = true;
 
                     VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
 
@@ -197,112 +243,121 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
-        HighlightController InteractWithObject(Vector3 position, bool inputActive, bool inputChange)
+        void InteractWithObject(InteractionElement oldElement, InteractionElement newElement, bool oldState, bool newState)
         {
-            HighlightController controller = GetInteractedObject(position);
+            newElement.Highlight = true;
 
-            if (controller == null) return null;
+            oldElement.Highlight = false;
 
-            //Interaction logic
-            //Highlight on overlap
-            if (!inputActive)
+
+
+            if (!oldState)
             {
-                controller.Highlight = true;
-            }
-            else if (inputChange)
-            {
-                controller.Highlight = false;
+
             }
 
-            //Disable highlight on interaction
+            if(oldElement == null)
+            {
 
-            return controller;
+            }
+            else
+            {
+
+            }
         }
 
-        HighlightController GetInteractedObject(Vector3 position)
+        InteractionElement GetInteractedObjectInVR(Vector3 position)
         {
-            Collider[] colliders = Physics.OverlapSphere(position, vrInteractionDistance);
+            Collider[] colliders = Physics.OverlapSphere(position, vrInteractionDistance, interactionMask);
 
             foreach(Collider collider in colliders)
             {
-                HighlightController potentialController = collider.transform.GetComponent<HighlightController>();
 
-                if (potentialController != null) return potentialController;
+                InteractionCollider potentialCollider = collider.transform.GetComponent<InteractionCollider>();
+
+                if (potentialCollider)
+                {
+                    return potentialCollider.LinkedInteractionElement;
+                }
+
+                /*
+                //TryGetComponent not exposed in U# yet
+                if (collider.transform.TryGetComponent(out InteractionCollider controller))
+                    return controller.LinkedInteractionElement;
+                */
             }
 
             return null;
         }
 
+        InteractionElement GetInteractedObjectInDesktop(Vector3 origin, Vector3 direction)
+        {
+            for(int i = 0; i<5; i++)
+            {
+                if (Physics.Raycast(new Ray(origin, direction), out RaycastHit hit, Mathf.Infinity, interactionMask)) //ToDo: Limit interaction distance
+                {
+                    if (hit.collider != null) //At least VRChat client sim canvas hit collider somehow null
+                    {
+                        InteractionCollider potentialCollider = hit.transform.GetComponent<InteractionCollider>();
+
+                        if (potentialCollider)
+                        {
+                            return potentialCollider.LinkedInteractionElement;
+                        }
+
+                        /*
+                        //TryGetComponent not exposed in U# yet
+                        if (hit.collider.transform.TryGetComponent<InteractionCollider>(out var controller))
+                            return controller.LinkedInteractionElement;
+                        */
+
+                        origin = hit.point; //ToDo: Reduce distance
+                        continue;
+                    }
+                }
+                return null;
+            }
+            return null;
+        }
+
         private void FixedUpdate()
         {
-            Transform newObject = null;
-
             if (inVR)
             {
-                HighlightController newLeftPalmObject = InteractWithObject(leftHandPalmInteractionPosition, leftPalmActive, leftPalmChange);
+                InteractionElement newLeftPalmCollider = GetInteractedObjectInVR(leftHandPalmInteractionPosition);
+                
             }
             else
             {
-                if (isCasting)
-                {
-                    Ray ray = new Ray(WorldRayOrigin, WorldRayDirection);
-
-                    if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
-                    {
-                        if (Input.GetMouseButtonDown(1))
-                        {
-                            Debug.Log(hit.collider.transform.name);
-                        }
-
-                        if (hit.collider != null) //At least VRChat client sim canvas hit collider somehow null
-                        {
-                            Transform hitObject = hit.collider.transform;
-
-                            if (hitObject.transform.GetComponent<HighlightController>())
-                            {
-                                newObject = hitObject;
-                            }
-                        }
-                    }
-                }
-
-                if (newObject != null)
-                {
-                    if (newObject != previousObject)
-                    {
-                        InputManager.EnableObjectHighlight(newObject.gameObject, true);
-                        if (previousObject) InputManager.EnableObjectHighlight(previousObject.gameObject, false);
-                    }
-                }
-                else
-                {
-                    if (previousObject)
-                    {
-                        InputManager.EnableObjectHighlight(previousObject.gameObject, false);
-                    }
-                }
+                if(isCastingInDesktop)
+                    newDesktopElement = GetInteractedObjectInDesktop(WorldRayOrigin, WorldRayDirection);
             }
 
-            previousObject = newObject;
         }
 
         //VRChat functions
         public override void InputUse(bool value, UdonInputEventArgs args)
         {
-            if (!inVR) return;
-
-            switch (args.handType)
+            if (inVR)
             {
-                case HandType.RIGHT:
-                    if (rightIndexActive != value) rightIndexChange = true;
-                    rightIndexActive = value;
-                    break;
-                case HandType.LEFT:
-                    if (leftIndexActive != value) leftIndexChange = true;
-                    leftIndexActive = value;
-                    break;
-                default:
-                    break;
+                switch (args.handType)
+                {
+                    case HandType.RIGHT:
+                        if (rightIndexActive != value) rightIndexChange = true;
+                        rightIndexActive = value;
+                        break;
+                    case HandType.LEFT:
+                        if (leftIndexActive != value) leftIndexChange = true;
+                        leftIndexActive = value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                desktopInputChange = true;
+                desktopInputActive = value;
             }
         }
 

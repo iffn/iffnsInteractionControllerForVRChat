@@ -10,11 +10,12 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     {
         public override void InteractionStart(InteractionController linkedInteractionController)
         {
-            
+            Debug.Log("Button Click Start");
         }
 
         public override void InteractionStop()
         {
+            Debug.Log("Button Click Stop");
             
         }
     }

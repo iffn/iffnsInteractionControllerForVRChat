@@ -21,10 +21,12 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         public abstract void InteractionStart(InteractionController linkedInteractionController);
         public abstract void InteractionStop();
 
-        public void Highlight(bool state)
+        public bool Highlight
         {
-            InputManager.EnableObjectHighlight(highlightObject, state);
+            set
+            {
+                InputManager.EnableObjectHighlight(highlightObject, value);
+            }
         }
-        
     }
 }
