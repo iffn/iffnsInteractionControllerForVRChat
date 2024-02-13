@@ -122,8 +122,12 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             if (!inputActive)
             {
                 //ToDo: More complex highlight logic to prevent shutting off and on if needed
-                if (previousElement) previousElement.Highlight = false;
-                if (newElement) newElement.Highlight = true;
+                
+                if(previousDesktopElement != newElement)
+                {
+                    if (previousElement) previousElement.Highlight = false;
+                    if (newElement) newElement.Highlight = true;
+                }
 
                 if (inputChange)
                 {
