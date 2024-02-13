@@ -39,7 +39,7 @@ public class LinearSliderInteractor : InteractionElement
         }
         else
         {
-            defaultOffset = GetCurrentDesktopValue();
+            defaultOffset = GetCurrentDesktopValue() - syncedValue / unityToValueScaler;
         }
     }
 
