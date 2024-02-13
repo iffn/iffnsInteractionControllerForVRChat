@@ -49,6 +49,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         bool grabHoldBehavior = true;
 
 
+        //Runtime variables General
+        int fixedUpdateCounter = 0;
+        int fixedUpdateClearanceByLateUpdate;
+
         //Runtime variables VR
         Vector3 leftHandIndexInteractionPosition;
         Vector3 rightHandIndexInteractionPosition;
@@ -93,8 +97,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 return referenceTransform.TransformDirection(localRayDirection);
             }
         }
-
-        
 
         public Transform ReferenceTransform
         {
@@ -158,6 +160,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         //public override void PostLateUpdate()
         void LateUpdate()
         {
+            fixedUpdateClearanceByLateUpdate = fixedUpdateCounter;
+
             if (inVR)
             {
                 VRCPlayerApi.TrackingData leftHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
@@ -320,19 +324,28 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             return null;
         }
 
-        private void FixedUpdate()
+        void FixedUpdatePerLateUpdate()
         {
             if (inVR)
             {
                 InteractionElement newLeftPalmCollider = GetInteractedObjectInVR(leftHandPalmInteractionPosition);
-                
+
             }
             else
             {
-                if(isCastingInDesktop)
+                if (isCastingInDesktop)
                     newDesktopElement = GetInteractedObjectInDesktop(WorldRayOrigin, WorldRayDirection);
             }
+        }
 
+        private void FixedUpdate()
+        {
+            if(fixedUpdateClearanceByLateUpdate == fixedUpdateCounter)
+            {
+                FixedUpdatePerLateUpdate();
+            }
+
+            fixedUpdateCounter++;
         }
 
         //VRChat functions
