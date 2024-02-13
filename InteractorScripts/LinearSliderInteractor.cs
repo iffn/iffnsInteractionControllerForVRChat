@@ -23,7 +23,6 @@ public class LinearSliderInteractor : InteractionElement
     [SerializeField] float unityToValueScaler = 1;
     [SerializeField] float maxOutput = 1;
     [SerializeField] float minOutput = -1;
-    [SerializeField] Transform debugTransform;
 
     public override void InteractionStart(InteractionController linkedInteractionController)
     {
@@ -61,7 +60,6 @@ public class LinearSliderInteractor : InteractionElement
         Vector3 worldInteractionPoint = worldRayOrigin + worldRayDirection.normalized * rayLength;
 
         Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
-        debugTransform.localPosition = localInteractionPoint;
 
         return localInteractionPoint.z;
     }
