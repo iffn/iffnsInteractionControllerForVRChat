@@ -123,6 +123,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &384020834
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 384020835}
+  m_Layer: 0
+  m_Name: DebugObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &384020835
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384020834}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.3181128, y: 0.5661216, z: 0.96807367}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &445065502
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1970,6 +2001,11 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 1967133745887976162, guid: 374d3ed3cf03b964f9f89dc638a1f97c,
         type: 3}
+      propertyPath: debugTransform
+      value: 
+      objectReference: {fileID: 384020835}
+    - target: {fileID: 1967133745887976162, guid: 374d3ed3cf03b964f9f89dc638a1f97c,
+        type: 3}
       propertyPath: referenceTransform
       value: 
       objectReference: {fileID: 1880158702}
@@ -2212,3 +2248,4 @@ SceneRoots:
   - {fileID: 7998574150308773726}
   - {fileID: 5117062628468256123}
   - {fileID: 494030881653958626}
+  - {fileID: 384020835}

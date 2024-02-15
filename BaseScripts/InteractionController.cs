@@ -199,7 +199,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                     if (!calibrated)
                     {
                         isCastingInDesktop = false;
-                        if (Input.GetMouseButtonDown(0))
+                        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Tilde))
                         {
                             float uiSensitivityX = uiCalibrator.localPosition.x / cursorPositionActual.x;
                             float uiSensitivityY = uiCalibrator.localPosition.y / cursorPositionActual.y;
@@ -231,6 +231,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                         localRayOrigin = referenceTransform.InverseTransformPoint(head.position);
                         localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * localHeading);
 
+                        newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * localHeading);
+
                         if (Input.GetKeyDown(KeyCode.Q))
                         {
                             calibrated = false;
@@ -247,6 +249,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
                     localRayOrigin = referenceTransform.InverseTransformPoint(head.position);
                     localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * Vector3.forward);
+                    
+                    newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * Vector3.forward);
                 }
             }
         }
@@ -298,33 +302,30 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             return null;
         }
 
+        public GameObject debugCollider;
+        public Transform debugTransform;
+
         InteractionElement GetInteractedObjectInDesktop(Vector3 origin, Vector3 direction)
         {
-            for(int i = 0; i<5; i++)
+            debugTransform.position = origin;
+            debugTransform.LookAt(direction, Vector2.up);
+
+            if (Physics.Raycast(new Ray(origin, direction), out RaycastHit hit, Mathf.Infinity, interactionMask)) //ToDo: Limit interaction distance
             {
-                if (Physics.Raycast(new Ray(origin, direction), out RaycastHit hit, Mathf.Infinity, interactionMask)) //ToDo: Limit interaction distance
+                if (hit.collider != null) //At least VRChat client sim canvas hit collider somehow null
                 {
-                    if (hit.collider != null) //At least VRChat client sim canvas hit collider somehow null
+                    debugCollider = hit.collider.gameObject;
+
+                    InteractionCollider potentialCollider = hit.transform.GetComponent<InteractionCollider>();
+
+                    if (potentialCollider)
                     {
-                        InteractionCollider potentialCollider = hit.transform.GetComponent<InteractionCollider>();
-
-                        if (potentialCollider)
-                        {
-                            return potentialCollider.LinkedInteractionElement;
-                        }
-
-                        /*
-                        //TryGetComponent not exposed in U# yet
-                        if (hit.collider.transform.TryGetComponent<InteractionCollider>(out var controller))
-                            return controller.LinkedInteractionElement;
-                        */
-
-                        origin = hit.point; //ToDo: Reduce distance
-                        continue;
+                        return potentialCollider.LinkedInteractionElement;
                     }
                 }
-                return null;
             }
+            else debugCollider = null;
+
             return null;
         }
 
@@ -344,6 +345,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
         private void FixedUpdate()
         {
+            return;
+
             if(fixedUpdateClearanceByLateUpdate == fixedUpdateCounter)
             {
                 FixedUpdatePerLateUpdate();
