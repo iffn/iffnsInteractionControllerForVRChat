@@ -25,8 +25,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         {
             set
             {
-                Debug.Log($"Setting hightlight of {highlightObject.name} to {value}");
-
                 InputManager.EnableObjectHighlight(highlightObject, value);
             }
         }

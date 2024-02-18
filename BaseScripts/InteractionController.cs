@@ -261,8 +261,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             oldElement.Highlight = false;
 
-
-
             if (!oldState)
             {
 
@@ -308,7 +306,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         InteractionElement GetInteractedObjectInDesktop(Vector3 origin, Vector3 direction)
         {
             debugTransform.position = origin;
-            debugTransform.LookAt(direction, Vector2.up);
+            debugTransform.LookAt(direction, Vector3.up);
 
             if (Physics.Raycast(new Ray(origin, direction), out RaycastHit hit, Mathf.Infinity, interactionMask)) //ToDo: Limit interaction distance
             {
