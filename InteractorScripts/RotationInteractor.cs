@@ -18,6 +18,8 @@ public class RotationInteractor : InteractionElement
     float defaultAngleRad;
 
     [SerializeField] Transform movingElement;
+    [SerializeField] Transform debugElement;
+    [SerializeField] TMPro.TextMeshProUGUI debugText;
 
 
     public override void InteractionStart(InteractionController linkedInteractionController)
@@ -53,10 +55,18 @@ public class RotationInteractor : InteractionElement
 
         Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
 
-        return Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x);
+        float angle = Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x);
+
+        debugElement.localPosition = localInteractionPoint;
+        debugText.text = $"lip: {localInteractionPoint}, angle: {angle}";
+
+        Debug.Log($"lip: {localInteractionPoint}, angle: {angle}");
+
+        return angle;
+
     }
 
-    void FixedUpdate()
+    void LateUpdate()
     {
         if (!inputActive) return;
 
