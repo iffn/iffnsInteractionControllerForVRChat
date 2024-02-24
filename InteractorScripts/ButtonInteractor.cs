@@ -8,15 +8,28 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class ButtonInteractor : InteractionElement
     {
+        bool pressed;
+
+        public bool Pressed
+        {
+            get
+            {
+                return pressed;
+            }
+            set
+            {
+                pressed = value;
+            }
+        }
+
         public override void InteractionStart(InteractionController linkedInteractionController)
         {
-            Debug.Log("Button Click Start");
+            pressed = true;
         }
 
         public override void InteractionStop()
         {
-            Debug.Log("Button Click Stop");
-            
+            pressed = false;
         }
     }
 }

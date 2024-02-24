@@ -11,7 +11,22 @@ public class LinearSliderInteractor : InteractionElement
 {
     [PublicAPI] public const int ExecutionOrder = InteractionController.ExecutionOrder + 1;
 
-    [UdonSynced] float syncedValue;
+    float currentValue;
+
+    public float CurrentValue
+    {
+        get
+        {
+            return currentValue;
+        }
+
+        set
+        {
+            currentValue = Mathf.Clamp(value, minOutput, maxOutput);
+
+            movingElement.transform.localPosition = currentValue / unityToValueScaler * Vector3.forward;
+        }
+    }
 
     bool inputActive;
 
@@ -38,7 +53,7 @@ public class LinearSliderInteractor : InteractionElement
         }
         else
         {
-            defaultOffset = GetCurrentDesktopValue() - syncedValue / unityToValueScaler;
+            defaultOffset = GetCurrentDesktopValue() - currentValue / unityToValueScaler;
         }
     }
 
@@ -55,7 +70,7 @@ public class LinearSliderInteractor : InteractionElement
 
         Ray selectionRay = new Ray(worldRayOrigin, worldRayDirection);
 
-        if(!plane.Raycast(selectionRay, out float rayLength)) return syncedValue;
+        if (!plane.Raycast(selectionRay, out float rayLength)) return -float.NaN; //No idea why, but I think this sometimes fails
 
         Vector3 worldInteractionPoint = worldRayOrigin + worldRayDirection.normalized * rayLength;
 
@@ -68,13 +83,21 @@ public class LinearSliderInteractor : InteractionElement
     {
         if (!inputActive) return;
 
-        float rawValue = GetCurrentDesktopValue();
+        if (inVR)
+        {
 
-        float offset = rawValue - defaultOffset;
+        }
+        else
+        {
+            float rawValue = GetCurrentDesktopValue();
 
-        syncedValue = Mathf.Clamp(offset * unityToValueScaler, minOutput, maxOutput);
+            if (!float.IsNaN(rawValue))
+            {
+                float offset = rawValue - defaultOffset;
 
-        movingElement.transform.localPosition = syncedValue / unityToValueScaler * Vector3.forward;
+                CurrentValue = offset * unityToValueScaler;
+            }
+        }
     }
 
     public override void InteractionStop()

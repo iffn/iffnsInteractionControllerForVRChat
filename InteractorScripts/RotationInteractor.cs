@@ -13,7 +13,20 @@ public class RotationInteractor : InteractionElement
     
     [SerializeField] Transform movingElement;
 
-    [UdonSynced] float syncedAngleDeg;
+    float currentAngleDeg;
+
+    public float CurrentAngleDeg
+    {
+        get
+        {
+            return currentAngleDeg;
+        }
+        set
+        {
+            currentAngleDeg = value;
+            movingElement.localRotation = Quaternion.Euler(currentAngleDeg * Vector3.forward);
+        }
+    }
 
     bool inputActive;
     InteractionController linkedInteractionController;
@@ -33,10 +46,10 @@ public class RotationInteractor : InteractionElement
         }
         else
         {
-            syncedAngleDeg = 0;
+            currentAngleDeg = 0;
             defaultAngleDeg = 0;
 
-            defaultAngleDeg = GetCurrentDesktopAngleDeg() - syncedAngleDeg; //Note: Will return 0 if raycast fails
+            defaultAngleDeg = GetCurrentDesktopAngleDeg() - currentAngleDeg; //Note: Will return 0 if raycast fails
         }
     }
 
@@ -49,7 +62,7 @@ public class RotationInteractor : InteractionElement
 
         Ray selectionRay = new Ray(worldRayOrigin, worldRayDirection);
 
-        if (!plane.Raycast(selectionRay, out float rayLength)) return syncedAngleDeg + defaultAngleDeg; //No idea why this sometimes fails
+        if (!plane.Raycast(selectionRay, out float rayLength)) return float.NaN; //No idea why this sometimes fails
 
         Vector3 worldInteractionPoint = worldRayOrigin + worldRayDirection.normalized * rayLength;
 
@@ -65,9 +78,19 @@ public class RotationInteractor : InteractionElement
     {
         if (!inputActive) return;
 
-        syncedAngleDeg = GetCurrentDesktopAngleDeg() - defaultAngleDeg;
+        if (inVR)
+        {
 
-        movingElement.localRotation = Quaternion.Euler(syncedAngleDeg * Vector3.forward);
+        }
+        else
+        {
+            float angle = GetCurrentDesktopAngleDeg();
+
+            if (!float.IsNaN(angle))
+            {
+                CurrentAngleDeg = GetCurrentDesktopAngleDeg() - defaultAngleDeg;
+            }
+        }
     }
 
     public override void InteractionStop()
