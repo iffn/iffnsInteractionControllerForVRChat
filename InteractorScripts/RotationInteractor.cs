@@ -10,18 +10,14 @@ using VRC.Udon;
 public class RotationInteractor : InteractionElement
 {
     [PublicAPI] public const int ExecutionOrder = InteractionController.ExecutionOrder + 1;
+    
+    [SerializeField] Transform movingElement;
 
-    [UdonSynced] public float syncedAngleDeg;
+    [UdonSynced] float syncedAngleDeg;
 
     bool inputActive;
-
     InteractionController linkedInteractionController;
-    public float defaultAngleDeg;
-
-    [SerializeField] Transform movingElement;
-    [SerializeField] Transform debugElement;
-    [SerializeField] TMPro.TextMeshProUGUI debugText;
-
+    float defaultAngleDeg;
 
     public override void InteractionStart(InteractionController linkedInteractionController)
     {

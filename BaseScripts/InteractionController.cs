@@ -302,22 +302,12 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             return null;
         }
 
-        public GameObject debugCollider;
-        public Transform debugTransform;
-
         InteractionElement GetInteractedObjectInDesktop(Vector3 origin, Vector3 direction)
         {
-            /*
-            debugTransform.position = origin;
-            debugTransform.LookAt(direction, Vector3.up); //Somehow throws errors after a few seconds
-            */
-
             if (Physics.Raycast(new Ray(origin, direction), out RaycastHit hit, Mathf.Infinity, interactionMask)) //ToDo: Limit interaction distance
             {
                 if (hit.collider != null) //At least VRChat client sim canvas hit collider somehow null
                 {
-                    debugCollider = hit.collider.gameObject;
-
                     InteractionCollider potentialCollider = hit.transform.GetComponent<InteractionCollider>();
 
                     if (potentialCollider)
@@ -326,7 +316,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                     }
                 }
             }
-            else debugCollider = null;
 
             return null;
         }
