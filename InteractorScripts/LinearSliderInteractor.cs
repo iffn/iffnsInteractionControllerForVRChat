@@ -11,6 +11,11 @@ public class LinearSliderInteractor : InteractionElement
 {
     [PublicAPI] public const int ExecutionOrder = InteractionController.ExecutionOrder + 1;
 
+    [SerializeField] Transform movingElement;
+    [SerializeField] float unityToValueScaler = 1;
+    [SerializeField] float maxOutput = 1;
+    [SerializeField] float minOutput = -1;
+
     float currentValue;
 
     public float CurrentValue
@@ -29,15 +34,8 @@ public class LinearSliderInteractor : InteractionElement
     }
 
     bool inputActive;
-
     InteractionController linkedInteractionController;
-
     float defaultOffset;
-
-    [SerializeField] Transform movingElement;
-    [SerializeField] float unityToValueScaler = 1;
-    [SerializeField] float maxOutput = 1;
-    [SerializeField] float minOutput = -1;
 
     public override void InteractionStart(InteractionController linkedInteractionController)
     {
@@ -53,7 +51,18 @@ public class LinearSliderInteractor : InteractionElement
         }
         else
         {
-            defaultOffset = GetCurrentDesktopValue() - currentValue / unityToValueScaler;
+            float offset = GetCurrentDesktopValue();
+
+            if (float.IsNaN(offset))
+            {
+                defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+            }
+            else
+            {
+                defaultOffset = offset - currentValue / unityToValueScaler;
+            }
+
+            
         }
     }
 
@@ -70,7 +79,11 @@ public class LinearSliderInteractor : InteractionElement
 
         Ray selectionRay = new Ray(worldRayOrigin, worldRayDirection);
 
-        if (!plane.Raycast(selectionRay, out float rayLength)) return -float.NaN; //No idea why, but I think this sometimes fails
+        if (!plane.Raycast(selectionRay, out float rayLength))
+        {
+            Debug.LogWarning($"Plane raycast failed in {nameof(LinearSliderInteractor)} for some reason");
+            return -float.NaN; //No idea why, but I think this sometimes fails
+        }
 
         Vector3 worldInteractionPoint = worldRayOrigin + worldRayDirection.normalized * rayLength;
 

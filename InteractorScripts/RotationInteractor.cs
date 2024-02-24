@@ -46,10 +46,17 @@ public class RotationInteractor : InteractionElement
         }
         else
         {
-            currentAngleDeg = 0;
-            defaultAngleDeg = 0;
+            float angle = GetCurrentDesktopAngleDeg();
 
-            defaultAngleDeg = GetCurrentDesktopAngleDeg() - currentAngleDeg; //Note: Will return 0 if raycast fails
+            if(float.IsNaN(angle))
+            {
+                defaultAngleDeg = currentAngleDeg; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+            }
+            else
+            {
+                defaultAngleDeg = angle - currentAngleDeg; //Note: Will return 0 if raycast fails
+                currentAngleDeg = defaultAngleDeg;
+            }
         }
     }
 
@@ -62,7 +69,11 @@ public class RotationInteractor : InteractionElement
 
         Ray selectionRay = new Ray(worldRayOrigin, worldRayDirection);
 
-        if (!plane.Raycast(selectionRay, out float rayLength)) return float.NaN; //No idea why this sometimes fails
+        if (!plane.Raycast(selectionRay, out float rayLength))
+        {
+            Debug.LogWarning($"Plane raycast failed in {nameof(RotationInteractor)} for some reason");
+            return float.NaN; //No idea why this sometimes fails
+        }
 
         Vector3 worldInteractionPoint = worldRayOrigin + worldRayDirection.normalized * rayLength;
 
