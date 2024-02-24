@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -243,7 +243,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 3d7d5bee9db7da547b904b88e8cc09c7,
+      objectReference: {fileID: 11400000, guid: cb56f16ad51c43d4383d72f045dd2b07,
         type: 2}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
@@ -1294,7 +1294,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 295937941032f3c40b70c97e4afa6778,
+      objectReference: {fileID: 11400000, guid: 90a0cb171c7fbbf46bad0df227a7a707,
         type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1354,8 +1354,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1441,6 +1441,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 800, y: 50}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &732033377
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 732033378}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &732033378
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732033377}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.013350554, y: 0.5567876, z: 1.5324453}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &842824538 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1967133745887976164, guid: 374d3ed3cf03b964f9f89dc638a1f97c,
@@ -2099,7 +2130,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: b97f58d8f10eddb4cafddae26a5f9d2d,
+      objectReference: {fileID: 11400000, guid: b3c8e7fab9246e14f9d60328579c4bc7,
         type: 2}
     - target: {fileID: 3927104967237736990, guid: a4318bb6a345dcd4ca7648080169c2e8,
         type: 3}
@@ -2116,7 +2147,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 764ade0094a72ab438610ba1e041746f,
+      objectReference: {fileID: 11400000, guid: b6643646553591645b42a98606b260e5,
         type: 2}
     - target: {fileID: 7518639165068155171, guid: a4318bb6a345dcd4ca7648080169c2e8,
         type: 3}
@@ -2175,6 +2206,11 @@ PrefabInstance:
       objectReference: {fileID: 452233168}
     - target: {fileID: 9008817891784955376, guid: a4318bb6a345dcd4ca7648080169c2e8,
         type: 3}
+      propertyPath: debugElement
+      value: 
+      objectReference: {fileID: 732033378}
+    - target: {fileID: 9008817891784955376, guid: a4318bb6a345dcd4ca7648080169c2e8,
+        type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 9008817891784955376, guid: a4318bb6a345dcd4ca7648080169c2e8,
@@ -2196,7 +2232,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: e5fc0d781bc0d8c48ac89a706f593bd6,
+      objectReference: {fileID: 11400000, guid: a4dfaaff13c396648a256486253437b0,
         type: 2}
     - target: {fileID: 1319939638189352630, guid: 374d3ed3cf03b964f9f89dc638a1f97c,
         type: 3}
@@ -2279,7 +2315,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: e2e65740879226c4ea692aa14c2a8efa,
+      objectReference: {fileID: 11400000, guid: 435634905b987174e96a353c3f787c33,
         type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2358,7 +2394,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 78806c45d8b3c3d41ae9d90adbb523b0,
+      objectReference: {fileID: 11400000, guid: fd89909b4b4fa284597e96ccc08c8b5c,
         type: 2}
     - target: {fileID: 2091576111517542718, guid: fbdc1d0eadc9505458d1edd0820b4579,
         type: 3}
@@ -2369,7 +2405,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 764ade0094a72ab438610ba1e041746f,
+      objectReference: {fileID: 11400000, guid: b6643646553591645b42a98606b260e5,
         type: 2}
     - target: {fileID: 7799370805378138380, guid: fbdc1d0eadc9505458d1edd0820b4579,
         type: 3}
@@ -2400,7 +2436,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 2e524b657452ad84e9c554516df046c9,
+      objectReference: {fileID: 11400000, guid: 3b10fc40e6553d14f9f2f9e4a0964d5a,
         type: 2}
     - target: {fileID: 2481333436676451761, guid: bda8cac846388484e879bf5ae2daea9a,
         type: 3}
@@ -2461,7 +2497,7 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 764ade0094a72ab438610ba1e041746f,
+      objectReference: {fileID: 11400000, guid: b6643646553591645b42a98606b260e5,
         type: 2}
     - target: {fileID: 8725012124620804607, guid: bda8cac846388484e879bf5ae2daea9a,
         type: 3}
@@ -2488,3 +2524,4 @@ SceneRoots:
   - {fileID: 5117062628468256123}
   - {fileID: 494030881653958626}
   - {fileID: 384020835}
+  - {fileID: 732033378}

@@ -221,6 +221,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
                         VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
 
+
                         Vector3 localHeading = new Vector3
                         (
                             cursorPositionActual.x,
@@ -232,6 +233,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                         localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * localHeading);
 
                         newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * localHeading);
+                        
 
                         if (Input.GetKeyDown(KeyCode.Q))
                         {
@@ -305,8 +307,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
         InteractionElement GetInteractedObjectInDesktop(Vector3 origin, Vector3 direction)
         {
+            /*
             debugTransform.position = origin;
-            debugTransform.LookAt(direction, Vector3.up);
+            debugTransform.LookAt(direction, Vector3.up); //Somehow throws errors after a few seconds
+            */
 
             if (Physics.Raycast(new Ray(origin, direction), out RaycastHit hit, Mathf.Infinity, interactionMask)) //ToDo: Limit interaction distance
             {

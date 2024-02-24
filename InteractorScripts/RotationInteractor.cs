@@ -3,6 +3,7 @@ using iffnsStuff.iffnsVRCStuff.InteractionController;
 using JetBrains.Annotations;
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.UIElements;
 using VRC.SDKBase;
 using VRC.Udon;
 
@@ -10,12 +11,12 @@ public class RotationInteractor : InteractionElement
 {
     [PublicAPI] public const int ExecutionOrder = InteractionController.ExecutionOrder + 1;
 
-    [UdonSynced] float syncedAngleRad;
+    [UdonSynced] public float syncedAngleDeg;
 
     bool inputActive;
 
     InteractionController linkedInteractionController;
-    float defaultAngleRad;
+    public float defaultAngleDeg;
 
     [SerializeField] Transform movingElement;
     [SerializeField] Transform debugElement;
@@ -36,11 +37,14 @@ public class RotationInteractor : InteractionElement
         }
         else
         {
-            defaultAngleRad = GetCurrentDesktopAngleRad() - syncedAngleRad;
+            syncedAngleDeg = 0;
+            defaultAngleDeg = 0;
+
+            defaultAngleDeg = GetCurrentDesktopAngleDeg() - syncedAngleDeg; //Note: Will return 0 if raycast fails
         }
     }
 
-    float GetCurrentDesktopAngleRad()
+    float GetCurrentDesktopAngleDeg()
     {
         Vector3 worldRayOrigin = linkedInteractionController.WorldRayOrigin;
         Vector3 worldRayDirection = linkedInteractionController.WorldRayDirection;
@@ -49,30 +53,25 @@ public class RotationInteractor : InteractionElement
 
         Ray selectionRay = new Ray(worldRayOrigin, worldRayDirection);
 
-        if (!plane.Raycast(selectionRay, out float rayLength)) return syncedAngleRad;
+        if (!plane.Raycast(selectionRay, out float rayLength)) return syncedAngleDeg + defaultAngleDeg; //No idea why this sometimes fails
 
         Vector3 worldInteractionPoint = worldRayOrigin + worldRayDirection.normalized * rayLength;
 
         Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
 
-        float angle = Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x);
+        //float angleRad = Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x); //Would also work but returns Rad instead of needed Deg
+        float angleDeg = Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward);
 
-        debugElement.localPosition = localInteractionPoint;
-        debugText.text = $"lip: {localInteractionPoint}, angle: {angle}";
-
-        Debug.Log($"lip: {localInteractionPoint}, angle: {angle}");
-
-        return angle;
-
+        return angleDeg;
     }
 
     void LateUpdate()
     {
         if (!inputActive) return;
 
-        syncedAngleRad = GetCurrentDesktopAngleRad() - defaultAngleRad;
+        syncedAngleDeg = GetCurrentDesktopAngleDeg() - defaultAngleDeg;
 
-        movingElement.localRotation = Quaternion.Euler(syncedAngleRad * Mathf.Rad2Deg * Vector3.forward);
+        movingElement.localRotation = Quaternion.Euler(syncedAngleDeg * Vector3.forward);
     }
 
     public override void InteractionStop()
