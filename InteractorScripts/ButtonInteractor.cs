@@ -10,6 +10,9 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     {
         bool pressed;
 
+        [SerializeField] UdonSharpBehaviour[] linkedInteractionReceiverElements;
+        [SerializeField] string stateChangeMessage;
+
         public bool Pressed
         {
             get
@@ -22,14 +25,24 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
+        void SendMessage()
+        {
+            foreach(UdonSharpBehaviour linkedReceiverElement in linkedInteractionReceiverElements)
+            {
+                linkedReceiverElement.SendCustomEvent(stateChangeMessage);
+            }
+        }
+
         public override void InteractionStart(InteractionController linkedInteractionController)
         {
             pressed = true;
+            SendMessage();
         }
 
         public override void InteractionStop()
         {
             pressed = false;
+            SendMessage();
         }
     }
 }

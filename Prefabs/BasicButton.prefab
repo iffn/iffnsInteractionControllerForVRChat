@@ -68,7 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -162,6 +162,10 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2282421975311513159}
   highlightObject: {fileID: 6616294199077867048}
+  linkedColliders:
+  - {fileID: 366347589868279596}
+  linkedInteractionReceiverElements: []
+  stateChangeMessage: 
 --- !u!114 &2282421975311513159
 MonoBehaviour:
   m_ObjectHideFlags: 0

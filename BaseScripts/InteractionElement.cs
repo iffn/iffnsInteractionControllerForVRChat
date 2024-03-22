@@ -8,6 +8,18 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     public abstract class InteractionElement : UdonSharpBehaviour
     {
         [SerializeField] GameObject highlightObject;
+        [SerializeField] Collider[] linkedColliders;
+
+        public bool InteractionCollidersEnabled
+        {
+            set
+            {
+                foreach (Collider collider in linkedColliders)
+                {
+                    collider.enabled = value;
+                }
+            }
+        }
 
         protected bool inVR;
         protected VRCPlayerApi localPlayer;
