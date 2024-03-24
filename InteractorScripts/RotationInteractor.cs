@@ -32,7 +32,7 @@ public class RotationInteractor : InteractionElement
     InteractionController linkedInteractionController;
     float defaultAngleDeg;
 
-    public override void InteractionStart(InteractionController linkedInteractionController)
+    public override void InteractionStart(InteractionController linkedInteractionController, interactionSources interactionSource)
     {
         inputActive = true;
 

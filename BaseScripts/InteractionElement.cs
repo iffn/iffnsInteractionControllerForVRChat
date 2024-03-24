@@ -5,6 +5,15 @@ using VRC.Udon;
 
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
+    public enum interactionSources
+    {
+        desktop,
+        leftPalm,
+        rightPalm,
+        leftIndex,
+        rightIndex
+    }
+
     public abstract class InteractionElement : UdonSharpBehaviour
     {
         [SerializeField] GameObject highlightObject;
@@ -30,7 +39,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             localPlayer = Networking.LocalPlayer;
         }
 
-        public abstract void InteractionStart(InteractionController linkedInteractionController);
+        public abstract void InteractionStart(InteractionController linkedInteractionController, interactionSources interactionSource);
         public abstract void InteractionStop();
 
         public bool Highlight

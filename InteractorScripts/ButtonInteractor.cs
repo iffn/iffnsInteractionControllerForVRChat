@@ -33,7 +33,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
-        public override void InteractionStart(InteractionController linkedInteractionController)
+        public override void InteractionStart(InteractionController linkedInteractionController, interactionSources interactionSource)
         {
             pressed = true;
             SendMessage();

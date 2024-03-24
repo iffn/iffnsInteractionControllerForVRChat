@@ -37,7 +37,7 @@ public class LinearSliderInteractor : InteractionElement
     InteractionController linkedInteractionController;
     float defaultOffset;
 
-    public override void InteractionStart(InteractionController linkedInteractionController)
+    public override void InteractionStart(InteractionController linkedInteractionController, interactionSources interactionSource)
     {
         inputActive = true;
 

@@ -1,4 +1,5 @@
-﻿using BestHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO.Pem;
+﻿using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO.Pem;
 using JetBrains.Annotations;
 using System;
 using UdonSharp;
@@ -12,6 +13,14 @@ using VRC.Udon.Common;
 
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
+    public enum InputStates
+    {
+        off,
+        justOn,
+        on,
+        justOff
+    }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     [DefaultExecutionOrder(ExecutionOrder)]
     public class InteractionController : UdonSharpBehaviour
@@ -34,17 +43,19 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] Camera linkedGrabCamera;
         [SerializeField] Transform referenceTransform;
         [SerializeField] LayerMask interactionMask;
+        [SerializeField] Transform leftPalmIndicator;
+        [SerializeField] Transform rightPalmIndicator;
+        [SerializeField] Transform leftIndexIndicator;
+        [SerializeField] Transform rightIndexIndicator;
 
         //Fixed variables
         bool useIsGrab;
         bool inVR;
         VRCPlayerApi localPlayer;
         float vrInteractionDistance;
-        
-        Vector3 leftHandIndexInteractionOffset;
-        Vector3 rightHandIndexInteractionOffset;
-        Vector3 leftHandPalmInteractionOffset;
-        Vector3 rightHandPalmInteractionOffset;
+        bool useAndGrabAreTheSame;
+
+
         bool triggerHoldBehavior = true;
         bool grabHoldBehavior = true;
 
@@ -54,27 +65,27 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         int fixedUpdateClearanceByLateUpdate;
 
         //Runtime variables VR
-        Vector3 leftHandIndexInteractionPosition;
-        Vector3 rightHandIndexInteractionPosition;
-        Vector3 leftHandPalmInteractionPosition;
-        Vector3 rightHandPalmInteractionPosition;
-        bool leftIndexActive = false;
-        bool leftPalmActive = false;
-        bool rightIndexActive = false;
-        bool rightPalmActive = false;
-        bool leftIndexChange = false;
-        bool rightIndexChange = false;
-        bool leftPalmChange = false;
-        bool rightPalmChange = false;
-        InteractionElement leftHandObject;
-        InteractionElement rightHandObject;
+        InputStates leftTriggerState;
+        InputStates rightTriggerState;
+        InputStates leftGrabState;
+        InputStates rightGrabState;
+
+        InteractionElement previousLeftPalmObject;
+        InteractionElement newLeftPalmObject;
+        InteractionElement previousRightPalmObject;
+        InteractionElement newRightPalmObject;
+        InteractionElement previousLeftIndexObject;
+        InteractionElement newLeftIndexObject;
+        InteractionElement previousRightIndexObject;
+        InteractionElement newRightIndexObject;
+
+        Vector3 fingerInteractionOffset = 0.058f * Vector3.forward;
+        Vector3 palmInteractionOffset = 0.01f * Vector3.down;
 
         //Runtime variables Desktop
-        public bool isCastingInDesktop = true;
+        public InputStates desktopInputState;
         public InteractionElement previousDesktopElement;
         public InteractionElement newDesktopElement;
-        public bool desktopInputActive = false;
-        public bool desktopInputChange = false;
         Vector2 cursorPosition;
         const int canvasSizeY = 540;
         const float halfDeg2Rad = Mathf.Deg2Rad * 0.5f;
@@ -107,174 +118,33 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         }
         
         //Internal function
-
-        //Unity functions
-        private void Start()
+        static void UpdateInteraction(InteractionElement previousElement, InteractionElement newElement, InputStates inputState, InteractionController controller, interactionSources interactionSource)
         {
-            localPlayer = Networking.LocalPlayer;
-            inVR = localPlayer.IsUserInVR();
-
-            if(referenceTransform == null) referenceTransform = transform;
-        }
-
-        void UpdateInteraction(InteractionElement previousElement, InteractionElement newElement, bool inputActive, bool inputChange)
-        {
-            if (!inputActive)
+            switch (inputState)
             {
-                //ToDo: More complex highlight logic to prevent shutting off and on if needed
-                
-                if(previousDesktopElement != newElement)
-                {
-                    if (previousElement) previousElement.Highlight = false;
-                    if (newElement) newElement.Highlight = true;
-                }
-
-                if (inputChange)
-                {
-                    if(previousElement) previousElement.InteractionStop();
-                }
-            }
-            else
-            {
-                if (inputChange)
-                {
-                    if(previousElement) previousElement.InteractionStart(this);
-                }
-            }
-        }
-
-        private void Update()
-        {
-            if (inVR)
-            {
-
-            }
-            else
-            {
-                UpdateInteraction(previousDesktopElement, newDesktopElement, desktopInputActive, desktopInputChange);
-
-                isCastingInDesktop = !desktopInputActive;
-
-                if(!desktopInputActive) previousDesktopElement = newDesktopElement;
-
-                desktopInputChange = false;
-            }
-        }
-
-        //public override void PostLateUpdate()
-        void LateUpdate()
-        {
-            fixedUpdateClearanceByLateUpdate = fixedUpdateCounter;
-
-            if (inVR)
-            {
-                VRCPlayerApi.TrackingData leftHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                VRCPlayerApi.TrackingData rightHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-
-                leftHandIndexInteractionPosition = leftHand.position + leftHand.rotation * leftHandPalmInteractionOffset;
-                rightHandIndexInteractionPosition = rightHand.position + rightHand.rotation * rightHandPalmInteractionOffset;
-            }
-            else
-            {
-                if (Input.GetKeyDown(KeyCode.Tab))
-                {
-                    cursorPosition = Vector2.zero;
-                    uiCursor.gameObject.SetActive(calibrated);
-
-                    uiCalibrator.gameObject.SetActive(!calibrated);
-                }
-                else if (Input.GetKeyUp(KeyCode.Tab))
-                {
-                    uiCursor.gameObject.SetActive(false);
-                    uiCalibrator.gameObject.SetActive(false);
-                }
-
-                if (Input.GetKey(KeyCode.Tab))
-                {
-                    cursorPosition.x += Input.GetAxisRaw("Mouse X");
-                    cursorPosition.y += Input.GetAxisRaw("Mouse Y");
-
-                    Vector2 cursorPositionActual = cursorPosition * cursorSpeedUI;
-
-                    if (!calibrated)
+                case InputStates.off:
+                    if (previousElement != newElement)
                     {
-                        isCastingInDesktop = false;
-                        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Tilde))
-                        {
-                            float uiSensitivityX = uiCalibrator.localPosition.x / cursorPositionActual.x;
-                            float uiSensitivityY = uiCalibrator.localPosition.y / cursorPositionActual.y;
-                            cursorSpeedUI *= (uiSensitivityX + uiSensitivityY) / 2;
-                            calibrated = true;
-                            isCastingInDesktop = true;
-                            uiCalibrator.gameObject.SetActive(false);
-                            uiCursor.gameObject.SetActive(true);
-                        }
+                        if (previousElement) previousElement.Highlight = false;
+                        if (newElement) newElement.Highlight = true;
                     }
-                    else
+                    break;
+                case InputStates.justOn:
+                    if (previousElement) previousElement.InteractionStart(controller, interactionSource);
+                    break;
+                case InputStates.on:
+                    break;
+                case InputStates.justOff:
+                    if (previousElement != newElement)
                     {
-                        float aspectRatio = 1f * linkedGrabCamera.pixelWidth / linkedGrabCamera.pixelHeight;
-
-                        cursorPositionActual.x = Mathf.Clamp(cursorPositionActual.x, -aspectRatio * canvasSizeY, aspectRatio * canvasSizeY);
-                        cursorPositionActual.y = Mathf.Clamp(cursorPositionActual.y, -canvasSizeY, canvasSizeY);
-
-                        uiCursor.anchoredPosition = cursorPositionActual;
-
-                        VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-
-
-                        Vector3 localHeading = new Vector3
-                        (
-                            cursorPositionActual.x,
-                            cursorPositionActual.y,
-                            540 / Mathf.Tan(linkedFOVDetector.DetectedFOV * halfDeg2Rad)
-                        );
-
-                        localRayOrigin = referenceTransform.InverseTransformPoint(head.position);
-                        localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * localHeading);
-
-                        newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * localHeading);
-                        
-
-                        if (Input.GetKeyDown(KeyCode.Q))
-                        {
-                            calibrated = false;
-                            uiCursor.gameObject.SetActive(false);
-                            uiCalibrator.gameObject.SetActive(true);
-                        }
+                        if (previousElement) previousElement.Highlight = false;
+                        if (newElement) newElement.Highlight = true;
                     }
-                }
-                else
-                {
-                    isCastingInDesktop = true;
 
-                    VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-
-                    localRayOrigin = referenceTransform.InverseTransformPoint(head.position);
-                    localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * Vector3.forward);
-                    
-                    newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * Vector3.forward);
-                }
-            }
-        }
-
-        void InteractWithObject(InteractionElement oldElement, InteractionElement newElement, bool oldState, bool newState)
-        {
-            newElement.Highlight = true;
-
-            oldElement.Highlight = false;
-
-            if (!oldState)
-            {
-
-            }
-
-            if(oldElement == null)
-            {
-
-            }
-            else
-            {
-
+                    if (previousElement) previousElement.InteractionStop();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -320,97 +190,225 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             return null;
         }
 
-        void FixedUpdatePerLateUpdate()
+        void CalculateAvatarOffsets()
         {
-            if (inVR)
-            {
-                InteractionElement newLeftPalmCollider = GetInteractedObjectInVR(leftHandPalmInteractionPosition);
+            //Finger length, also used as reference for rest
+            Vector3 fingerBase = localPlayer.GetBonePosition(HumanBodyBones.RightIndexProximal);
+            Vector3 fingerMiddle = localPlayer.GetBonePosition(HumanBodyBones.RightIndexIntermediate);
+            Vector3 fingerFront = localPlayer.GetBonePosition(HumanBodyBones.RightIndexDistal);
 
+            float fingerLength = (fingerBase - fingerMiddle).magnitude + (fingerMiddle - fingerFront).magnitude;
+
+            if (fingerLength == 0) fingerLength = localPlayer.GetAvatarEyeHeightAsMeters() * 0.058f;
+
+            fingerInteractionOffset = fingerLength * Vector3.forward;
+
+            //Palm
+            palmInteractionOffset = fingerLength * 0.5f * Vector3.down;
+
+            //Indicator
+            vrInteractionDistance = fingerLength * 0.2f;
+
+            Vector3 indicatorScale = vrInteractionDistance * Vector3.one;
+
+            leftIndexIndicator.localScale = indicatorScale;
+            rightIndexIndicator.localScale = indicatorScale;
+            leftPalmIndicator.localScale = indicatorScale;
+            rightPalmIndicator.localScale = indicatorScale;
+        }
+
+        static InputStates GetNewInputState(InputStates existingState, bool newValue)
+        {
+            if (newValue)
+            {
+                if (existingState == InputStates.on || existingState == InputStates.justOn) return InputStates.on;
+                else return InputStates.justOn;
             }
             else
             {
-                if (isCastingInDesktop)
-                    newDesktopElement = GetInteractedObjectInDesktop(WorldRayOrigin, WorldRayDirection);
+                if (existingState == InputStates.off || existingState == InputStates.justOff) return InputStates.off;
+                else return InputStates.justOff;
             }
         }
 
-        private void FixedUpdate()
+        //Unity functions
+        private void Start()
         {
-            return;
+            localPlayer = Networking.LocalPlayer;
+            inVR = localPlayer.IsUserInVR();
 
-            if(fixedUpdateClearanceByLateUpdate == fixedUpdateCounter)
+            if (referenceTransform == null) referenceTransform = transform;
+
+            useAndGrabAreTheSame = !inVR;
+
+            string[] controllers = Input.GetJoystickNames();
+
+            foreach (string controller in controllers)
             {
-                FixedUpdatePerLateUpdate();
+                if (!controller.ToLower().Contains("vive")) continue;
+
+                useAndGrabAreTheSame = true;
+                break;
             }
 
-            fixedUpdateCounter++;
+            if (!inVR)
+            {
+                leftIndexIndicator.gameObject.SetActive(false);
+                rightIndexIndicator.gameObject.SetActive(false);
+                leftPalmIndicator.gameObject.SetActive(false);
+                rightPalmIndicator.gameObject.SetActive(false);
+            }
         }
 
-        //VRChat functions
-        public override void InputUse(bool value, UdonInputEventArgs args)
+        private void Update()
         {
             if (inVR)
             {
-                switch (args.handType)
-                {
-                    case HandType.RIGHT:
-                        if (rightIndexActive != value) rightIndexChange = true;
-                        rightIndexActive = value;
-                        break;
-                    case HandType.LEFT:
-                        if (leftIndexActive != value) leftIndexChange = true;
-                        leftIndexActive = value;
-                        break;
-                    default:
-                        break;
-                }
+                //ToDo: Replace with ref if available
+                leftTriggerState = GetNewInputState(leftTriggerState, Input.GetAxis("Oculus_CrossPlatform_PrimaryIndexTrigger") > 0.9f);
+                rightTriggerState = GetNewInputState(rightTriggerState, Input.GetAxis("Oculus_CrossPlatform_SecondaryIndexTrigger") > 0.9f);
+                leftGrabState = GetNewInputState(leftGrabState, Input.GetAxis("Oculus_CrossPlatform_PrimaryHandTrigger") > 0.9f);
+                rightGrabState = GetNewInputState(rightGrabState, Input.GetAxis("Oculus_CrossPlatform_SecondaryHandTrigger") > 0.9f);
+
+                UpdateInteraction(previousLeftPalmObject, newLeftPalmObject, leftGrabState, this, interactionSources.leftPalm);
+                UpdateInteraction(previousRightPalmObject, newRightPalmObject, rightGrabState, this, interactionSources.rightPalm);
+                UpdateInteraction(previousLeftIndexObject, newLeftIndexObject, leftTriggerState, this, interactionSources.leftIndex);
+                UpdateInteraction(previousRightIndexObject, newRightIndexObject, rightTriggerState, this, interactionSources.rightIndex);
+
+                if (leftGrabState == InputStates.off || leftGrabState == InputStates.justOff) previousLeftPalmObject = newLeftPalmObject;
+                if (leftTriggerState == InputStates.off || leftTriggerState == InputStates.justOff) previousLeftIndexObject = newLeftIndexObject;
+                if (rightGrabState == InputStates.off || rightGrabState == InputStates.justOff) previousRightPalmObject = newRightPalmObject;
+                if (rightTriggerState == InputStates.off || rightTriggerState == InputStates.justOff) previousRightIndexObject = newRightIndexObject;
             }
             else
             {
-                desktopInputChange = true;
-                desktopInputActive = value;
+                desktopInputState = GetNewInputState(desktopInputState, Input.GetMouseButton(0));
+
+                UpdateInteraction(previousDesktopElement, newDesktopElement, desktopInputState, this, interactionSources.desktop);
+
+                if (desktopInputState == InputStates.off || desktopInputState == InputStates.justOff) previousDesktopElement = newDesktopElement;
             }
         }
 
-        public override void InputGrab(bool value, UdonInputEventArgs args)
+        //public override void PostLateUpdate()
+        void LateUpdate()
         {
-            if (!inVR) return;
+            fixedUpdateClearanceByLateUpdate = fixedUpdateCounter;
 
-            if (!useIsGrab)
+            if (inVR)
             {
-                switch (args.handType)
+                VRCPlayerApi.TrackingData leftHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
+                VRCPlayerApi.TrackingData rightHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+                Vector3 leftFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftIndexProximal);
+                Quaternion leftFingerRotation = localPlayer.GetBoneRotation(HumanBodyBones.LeftIndexProximal);
+                Vector3 rightFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.RightIndexProximal);
+                Quaternion rightFingerRotation = localPlayer.GetBoneRotation(HumanBodyBones.RightIndexProximal);
+
+                Vector3 leftPalmInteractionPosition = leftHand.position + leftHand.rotation * palmInteractionOffset;
+                Vector3 rightPalmInteractionPosition = rightHand.position + rightHand.rotation * palmInteractionOffset;
+                Vector3 leftIndexInteractionPosition = leftFingerPosition + leftFingerRotation * fingerInteractionOffset;
+                Vector3 rightIndexInteractionPosition = rightFingerPosition + rightFingerRotation * fingerInteractionOffset;
+
+                leftIndexIndicator.position = leftIndexInteractionPosition;
+                rightIndexIndicator.position = rightIndexInteractionPosition;
+                leftPalmIndicator.position = leftPalmInteractionPosition;
+                rightPalmIndicator.position = rightPalmInteractionPosition;
+
+                newLeftIndexObject = GetInteractedObjectInVR(leftIndexInteractionPosition);
+                newRightIndexObject = GetInteractedObjectInVR(rightIndexInteractionPosition);
+                newLeftPalmObject = GetInteractedObjectInVR(leftPalmInteractionPosition);
+                newRightPalmObject = GetInteractedObjectInVR(rightPalmInteractionPosition);
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.Tab))
                 {
-                    case HandType.RIGHT:
-                        if (rightPalmActive != value) rightPalmChange = true;
-                        rightPalmActive = value;
-                        break;
-                    case HandType.LEFT:
-                        if (leftPalmActive != value) leftPalmChange = true;
-                        leftPalmActive = value;
-                        break;
-                    default:
-                        break;
+                    cursorPosition = Vector2.zero;
+                    uiCursor.gameObject.SetActive(calibrated);
+
+                    uiCalibrator.gameObject.SetActive(!calibrated);
+                }
+                else if (Input.GetKeyUp(KeyCode.Tab))
+                {
+                    uiCursor.gameObject.SetActive(false);
+                    uiCalibrator.gameObject.SetActive(false);
+                }
+
+                if (Input.GetKey(KeyCode.Tab))
+                {
+                    cursorPosition.x += Input.GetAxisRaw("Mouse X");
+                    cursorPosition.y += Input.GetAxisRaw("Mouse Y");
+
+                    Vector2 cursorPositionActual = cursorPosition * cursorSpeedUI;
+
+                    if (!calibrated)
+                    {
+                        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Tilde))
+                        {
+                            float uiSensitivityX = uiCalibrator.localPosition.x / cursorPositionActual.x;
+                            float uiSensitivityY = uiCalibrator.localPosition.y / cursorPositionActual.y;
+                            cursorSpeedUI *= (uiSensitivityX + uiSensitivityY) / 2;
+                            calibrated = true;
+                            uiCalibrator.gameObject.SetActive(false);
+                            uiCursor.gameObject.SetActive(true);
+                        }
+                    }
+                    else
+                    {
+                        float aspectRatio = 1f * linkedGrabCamera.pixelWidth / linkedGrabCamera.pixelHeight;
+
+                        cursorPositionActual.x = Mathf.Clamp(cursorPositionActual.x, -aspectRatio * canvasSizeY, aspectRatio * canvasSizeY);
+                        cursorPositionActual.y = Mathf.Clamp(cursorPositionActual.y, -canvasSizeY, canvasSizeY);
+
+                        uiCursor.anchoredPosition = cursorPositionActual;
+
+                        VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+
+
+                        Vector3 localHeading = new Vector3
+                        (
+                            cursorPositionActual.x,
+                            cursorPositionActual.y,
+                            540 / Mathf.Tan(linkedFOVDetector.DetectedFOV * halfDeg2Rad)
+                        );
+
+                        localRayOrigin = referenceTransform.InverseTransformPoint(head.position);
+                        localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * localHeading);
+
+                        newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * localHeading);
+
+                        if (Input.GetKeyDown(KeyCode.Q))
+                        {
+                            calibrated = false;
+                            uiCursor.gameObject.SetActive(false);
+                            uiCalibrator.gameObject.SetActive(true);
+                        }
+                    }
+                }
+                else
+                {
+                    VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+
+                    localRayOrigin = referenceTransform.InverseTransformPoint(head.position);
+                    localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * Vector3.forward);
+
+                    newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * Vector3.forward);
                 }
             }
         }
 
-        public override void InputDrop(bool value, UdonInputEventArgs args)
+        public override void OnAvatarEyeHeightChanged(VRCPlayerApi player, float prevEyeHeightAsMeters)
         {
-            if (!inVR) return;
+            if (!player.isLocal) return;
 
-            switch (args.handType)
-            {
-                case HandType.RIGHT:
-                    if (rightPalmActive != value) rightPalmChange = true;
-                    rightPalmActive = value;
-                    break;
-                case HandType.LEFT:
-                    if (leftPalmActive != value) leftPalmChange = true;
-                    leftPalmActive = value;
-                    break;
-                default:
-                    break;
-            }
+            CalculateAvatarOffsets();
+        }
+
+        public override void OnAvatarChanged(VRCPlayerApi player)
+        {
+            if (!player.isLocal) return;
+            
+            CalculateAvatarOffsets();
         }
     }
 }
