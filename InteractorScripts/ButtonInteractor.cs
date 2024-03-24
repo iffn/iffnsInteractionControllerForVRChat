@@ -33,10 +33,30 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
-        public override void InteractionStart(InteractionController linkedInteractionController, interactionSources interactionSource)
+        void startFunciton()
         {
             pressed = true;
             SendMessage();
+        }
+
+        public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
+        {
+            startFunciton();
+        }
+
+        public override void InteractionStart(Vector3 worldPosition)
+        {
+            startFunciton();
+        }
+
+        public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
+        {
+            //No update needed
+        }
+
+        public override void UpdateElement(Vector3 worldInteractionPoint)
+        {
+            //No update needed
         }
 
         public override void InteractionStop()

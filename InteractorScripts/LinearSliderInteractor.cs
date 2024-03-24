@@ -33,51 +33,50 @@ public class LinearSliderInteractor : InteractionElement
         }
     }
 
-    bool inputActive;
     InteractionController linkedInteractionController;
     float defaultOffset;
 
-    public override void InteractionStart(InteractionController linkedInteractionController, interactionSources interactionSource)
+    public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
     {
-        inputActive = true;
-
         if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-        this.linkedInteractionController = linkedInteractionController;
+        float offset = GetValueFromRay(rayWorldOrigin, rayWorldDirection);
 
-        if (inVR)
+        if (float.IsNaN(offset))
         {
-
+            defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
         }
         else
         {
-            float offset = GetCurrentDesktopValue();
-
-            if (float.IsNaN(offset))
-            {
-                defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
-            }
-            else
-            {
-                defaultOffset = offset - currentValue / unityToValueScaler;
-            }
-
-            
+            defaultOffset = offset - currentValue / unityToValueScaler;
         }
     }
 
-    float GetCurrentDesktopValue()
+    public override void InteractionStart(Vector3 worldPosition)
     {
-        Vector3 worldRayOrigin = linkedInteractionController.WorldRayOrigin;
-        Vector3 worldRayDirection = linkedInteractionController.WorldRayDirection;
+        if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-        Vector3 planeSideDirection = Vector3.Cross(transform.forward, worldRayDirection);
+        float offset = GetValueFromPoint(worldPosition);
+
+        if (float.IsNaN(offset))
+        {
+            defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+        }
+        else
+        {
+            defaultOffset = offset - currentValue / unityToValueScaler;
+        }
+    }
+
+    float GetValueFromRay(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
+    {
+        Vector3 planeSideDirection = Vector3.Cross(transform.forward, rayWorldDirection);
 
         Vector3 planeNormal = Vector3.Cross(transform.forward, planeSideDirection);
 
         Plane plane = new Plane(planeNormal, transform.position);
 
-        Ray selectionRay = new Ray(worldRayOrigin, worldRayDirection);
+        Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
 
         if (!plane.Raycast(selectionRay, out float rayLength))
         {
@@ -85,37 +84,45 @@ public class LinearSliderInteractor : InteractionElement
             return -float.NaN; //No idea why, but I think this sometimes fails
         }
 
-        Vector3 worldInteractionPoint = worldRayOrigin + worldRayDirection.normalized * rayLength;
+        Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
 
+        return GetValueFromPoint(worldInteractionPoint);
+    }
+
+    float GetValueFromPoint(Vector3 worldInteractionPoint)
+    {
         Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
 
         return localInteractionPoint.z;
     }
 
-    private void FixedUpdate()
+    public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
     {
-        if (!inputActive) return;
+        float rawValue = GetValueFromRay(rayWorldOrigin, rayWorldDirection);
 
-        if (inVR)
+        if (!float.IsNaN(rawValue))
         {
+            float offset = rawValue - defaultOffset;
 
+            CurrentValue = offset * unityToValueScaler;
         }
-        else
+    }
+
+    public override void UpdateElement(Vector3 worldInteractionPoint)
+    {
+        float rawValue = GetValueFromPoint(worldInteractionPoint);
+
+        if (!float.IsNaN(rawValue))
         {
-            float rawValue = GetCurrentDesktopValue();
+            float offset = rawValue - defaultOffset;
 
-            if (!float.IsNaN(rawValue))
-            {
-                float offset = rawValue - defaultOffset;
-
-                CurrentValue = offset * unityToValueScaler;
-            }
+            CurrentValue = offset * unityToValueScaler;
         }
     }
 
     public override void InteractionStop()
     {
-        inputActive = false;
+        
     }
 
     public override void OnOwnershipTransferred(VRCPlayerApi player)
@@ -128,7 +135,7 @@ public class LinearSliderInteractor : InteractionElement
         }
         else
         {
-            inputActive = false;
+            
         }
     }
 }

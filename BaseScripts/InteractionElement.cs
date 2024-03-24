@@ -39,8 +39,12 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             localPlayer = Networking.LocalPlayer;
         }
 
-        public abstract void InteractionStart(InteractionController linkedInteractionController, interactionSources interactionSource);
+        public abstract void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection);
+        public abstract void InteractionStart(Vector3 worldPosition);
         public abstract void InteractionStop();
+
+        public abstract void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection);
+        public abstract void UpdateElement(Vector3 worldPosition);
 
         public bool Highlight
         {

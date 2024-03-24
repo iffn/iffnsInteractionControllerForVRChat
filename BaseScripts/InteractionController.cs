@@ -70,6 +70,11 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         InputStates leftGrabState;
         InputStates rightGrabState;
 
+        Vector3 leftPalmInteractionPosition;
+        Vector3 rightPalmInteractionPosition;
+        Vector3 leftIndexInteractionPosition;
+        Vector3 rightIndexInteractionPosition;
+
         InteractionElement previousLeftPalmObject;
         InteractionElement newLeftPalmObject;
         InteractionElement previousRightPalmObject;
@@ -118,7 +123,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         }
         
         //Internal function
-        static void UpdateInteraction(InteractionElement previousElement, InteractionElement newElement, InputStates inputState, InteractionController controller, interactionSources interactionSource)
+        static void UpdateRayInteraction(InteractionElement previousElement, InteractionElement newElement, InputStates inputState, Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
             switch (inputState)
             {
@@ -130,9 +135,41 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                     }
                     break;
                 case InputStates.justOn:
-                    if (previousElement) previousElement.InteractionStart(controller, interactionSource);
+                    if (previousElement) previousElement.InteractionStart(rayWorldOrigin, rayWorldDirection);
                     break;
                 case InputStates.on:
+                    if (previousElement) previousElement.UpdateElement(rayWorldOrigin, rayWorldDirection);
+                    break;
+                case InputStates.justOff:
+                    if (previousElement != newElement)
+                    {
+                        if (previousElement) previousElement.Highlight = false;
+                        if (newElement) newElement.Highlight = true;
+                    }
+
+                    if (previousElement) previousElement.InteractionStop();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        static void UpdateRayInteraction(InteractionElement previousElement, InteractionElement newElement, InputStates inputState, Vector3 worldPosition)
+        {
+            switch (inputState)
+            {
+                case InputStates.off:
+                    if (previousElement != newElement)
+                    {
+                        if (previousElement) previousElement.Highlight = false;
+                        if (newElement) newElement.Highlight = true;
+                    }
+                    break;
+                case InputStates.justOn:
+                    if (previousElement) previousElement.InteractionStart(worldPosition);
+                    break;
+                case InputStates.on:
+                    if (previousElement) previousElement.UpdateElement(worldPosition);
                     break;
                 case InputStates.justOff:
                     if (previousElement != newElement)
@@ -201,10 +238,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             if (fingerLength == 0) fingerLength = localPlayer.GetAvatarEyeHeightAsMeters() * 0.058f;
 
-            fingerInteractionOffset = fingerLength * Vector3.forward;
+            fingerInteractionOffset = fingerLength * Vector3.right;
 
             //Palm
-            palmInteractionOffset = fingerLength * 0.5f * Vector3.down;
+            palmInteractionOffset = fingerLength * 0.3f * Vector3.down;
 
             //Indicator
             vrInteractionDistance = fingerLength * 0.2f;
@@ -270,10 +307,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 leftGrabState = GetNewInputState(leftGrabState, Input.GetAxis("Oculus_CrossPlatform_PrimaryHandTrigger") > 0.9f);
                 rightGrabState = GetNewInputState(rightGrabState, Input.GetAxis("Oculus_CrossPlatform_SecondaryHandTrigger") > 0.9f);
 
-                UpdateInteraction(previousLeftPalmObject, newLeftPalmObject, leftGrabState, this, interactionSources.leftPalm);
-                UpdateInteraction(previousRightPalmObject, newRightPalmObject, rightGrabState, this, interactionSources.rightPalm);
-                UpdateInteraction(previousLeftIndexObject, newLeftIndexObject, leftTriggerState, this, interactionSources.leftIndex);
-                UpdateInteraction(previousRightIndexObject, newRightIndexObject, rightTriggerState, this, interactionSources.rightIndex);
+                UpdateRayInteraction(previousLeftPalmObject, newLeftPalmObject, leftGrabState, leftPalmInteractionPosition);
+                UpdateRayInteraction(previousRightPalmObject, newRightPalmObject, rightGrabState, rightPalmInteractionPosition);
+                UpdateRayInteraction(previousLeftIndexObject, newLeftIndexObject, leftTriggerState, leftIndexInteractionPosition);
+                UpdateRayInteraction(previousRightIndexObject, newRightIndexObject, rightTriggerState, rightPalmInteractionPosition);
 
                 if (leftGrabState == InputStates.off || leftGrabState == InputStates.justOff) previousLeftPalmObject = newLeftPalmObject;
                 if (leftTriggerState == InputStates.off || leftTriggerState == InputStates.justOff) previousLeftIndexObject = newLeftIndexObject;
@@ -284,14 +321,14 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             {
                 desktopInputState = GetNewInputState(desktopInputState, Input.GetMouseButton(0));
 
-                UpdateInteraction(previousDesktopElement, newDesktopElement, desktopInputState, this, interactionSources.desktop);
+                UpdateRayInteraction(previousDesktopElement, newDesktopElement, desktopInputState, WorldRayOrigin, WorldRayDirection);
 
                 if (desktopInputState == InputStates.off || desktopInputState == InputStates.justOff) previousDesktopElement = newDesktopElement;
             }
         }
 
         //public override void PostLateUpdate()
-        void LateUpdate()
+        public override void PostLateUpdate()
         {
             fixedUpdateClearanceByLateUpdate = fixedUpdateCounter;
 
@@ -304,10 +341,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 Vector3 rightFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.RightIndexProximal);
                 Quaternion rightFingerRotation = localPlayer.GetBoneRotation(HumanBodyBones.RightIndexProximal);
 
-                Vector3 leftPalmInteractionPosition = leftHand.position + leftHand.rotation * palmInteractionOffset;
-                Vector3 rightPalmInteractionPosition = rightHand.position + rightHand.rotation * palmInteractionOffset;
-                Vector3 leftIndexInteractionPosition = leftFingerPosition + leftFingerRotation * fingerInteractionOffset;
-                Vector3 rightIndexInteractionPosition = rightFingerPosition + rightFingerRotation * fingerInteractionOffset;
+                leftPalmInteractionPosition = leftHand.position + leftHand.rotation * (-palmInteractionOffset);
+                rightPalmInteractionPosition = rightHand.position + rightHand.rotation * palmInteractionOffset;
+                leftIndexInteractionPosition = leftFingerPosition + leftHand.rotation * fingerInteractionOffset;
+                rightIndexInteractionPosition = rightFingerPosition + rightHand.rotation * fingerInteractionOffset;
 
                 leftIndexIndicator.position = leftIndexInteractionPosition;
                 rightIndexIndicator.position = rightIndexInteractionPosition;
