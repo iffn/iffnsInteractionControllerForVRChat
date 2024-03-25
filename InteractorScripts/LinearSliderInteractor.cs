@@ -1,141 +1,140 @@
-﻿
-using iffnsStuff.iffnsVRCStuff.InteractionController;
-using JetBrains.Annotations;
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 
-[DefaultExecutionOrder(ExecutionOrder)]
-public class LinearSliderInteractor : InteractionElement
+namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
-    [PublicAPI] public const int ExecutionOrder = InteractionController.ExecutionOrder + 1;
-
-    [SerializeField] Transform movingElement;
-    [SerializeField] float unityToValueScaler = 1;
-    [SerializeField] float maxOutput = 1;
-    [SerializeField] float minOutput = -1;
-
-    float currentValue;
-
-    public float CurrentValue
+    public class LinearSliderInteractor : SingleFloatInteractor
     {
-        get
+        [SerializeField] Transform movingElement;
+        [SerializeField] float unityToValueScaler = 1;
+
+        float currentValue;
+
+        protected override void SetUnityValue(float value)
         {
-            return currentValue;
+            movingElement.transform.localPosition = value * Vector3.forward;
         }
 
-        set
+        public float CurrentValue
         {
-            currentValue = Mathf.Clamp(value, minOutput, maxOutput);
+            get
+            {
+                return currentValue;
+            }
 
-            movingElement.transform.localPosition = currentValue / unityToValueScaler * Vector3.forward;
-        }
-    }
+            set
+            {
+                currentValue = Mathf.Clamp(value, minUnityValue, maxUnityValue);
 
-    InteractionController linkedInteractionController;
-    float defaultOffset;
-
-    public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
-    {
-        if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
-
-        float offset = GetValueFromRay(rayWorldOrigin, rayWorldDirection);
-
-        if (float.IsNaN(offset))
-        {
-            defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
-        }
-        else
-        {
-            defaultOffset = offset - currentValue / unityToValueScaler;
-        }
-    }
-
-    public override void InteractionStart(Vector3 worldPosition)
-    {
-        if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
-
-        float offset = GetValueFromPoint(worldPosition);
-
-        if (float.IsNaN(offset))
-        {
-            defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
-        }
-        else
-        {
-            defaultOffset = offset - currentValue / unityToValueScaler;
-        }
-    }
-
-    float GetValueFromRay(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
-    {
-        Vector3 planeSideDirection = Vector3.Cross(transform.forward, rayWorldDirection);
-
-        Vector3 planeNormal = Vector3.Cross(transform.forward, planeSideDirection);
-
-        Plane plane = new Plane(planeNormal, transform.position);
-
-        Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
-
-        if (!plane.Raycast(selectionRay, out float rayLength))
-        {
-            Debug.LogWarning($"Plane raycast failed in {nameof(LinearSliderInteractor)} for some reason");
-            return -float.NaN; //No idea why, but I think this sometimes fails
+                movingElement.transform.localPosition = currentValue / unityToValueScaler * Vector3.forward;
+            }
         }
 
-        Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
+        float defaultOffset;
 
-        return GetValueFromPoint(worldInteractionPoint);
-    }
-
-    float GetValueFromPoint(Vector3 worldInteractionPoint)
-    {
-        Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
-
-        return localInteractionPoint.z;
-    }
-
-    public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
-    {
-        float rawValue = GetValueFromRay(rayWorldOrigin, rayWorldDirection);
-
-        if (!float.IsNaN(rawValue))
+        public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
-            float offset = rawValue - defaultOffset;
+            if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-            CurrentValue = offset * unityToValueScaler;
+            float offset = GetValueFromRay(rayWorldOrigin, rayWorldDirection);
+
+            if (float.IsNaN(offset))
+            {
+                defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+            }
+            else
+            {
+                defaultOffset = offset - currentValue / unityToValueScaler;
+            }
         }
-    }
 
-    public override void UpdateElement(Vector3 worldInteractionPoint)
-    {
-        float rawValue = GetValueFromPoint(worldInteractionPoint);
-
-        if (!float.IsNaN(rawValue))
+        public override void InteractionStart(Vector3 worldPosition)
         {
-            float offset = rawValue - defaultOffset;
+            if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-            CurrentValue = offset * unityToValueScaler;
+            float offset = GetValueFromPoint(worldPosition);
+
+            if (float.IsNaN(offset))
+            {
+                defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+            }
+            else
+            {
+                defaultOffset = offset - currentValue / unityToValueScaler;
+            }
         }
-    }
 
-    public override void InteractionStop()
-    {
-        
-    }
+        float GetValueFromRay(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
+        {
+            Vector3 planeSideDirection = Vector3.Cross(transform.forward, rayWorldDirection);
 
-    public override void OnOwnershipTransferred(VRCPlayerApi player)
-    {
-        base.OnOwnershipTransferred(player);
+            Vector3 planeNormal = Vector3.Cross(transform.forward, planeSideDirection);
 
-        if (player.isLocal)
+            Plane plane = new Plane(planeNormal, transform.position);
+
+            Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
+
+            if (!plane.Raycast(selectionRay, out float rayLength))
+            {
+                Debug.LogWarning($"Plane raycast failed in {nameof(LinearSliderInteractor)} for some reason");
+                return -float.NaN; //No idea why, but I think this sometimes fails
+            }
+
+            Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
+
+            return GetValueFromPoint(worldInteractionPoint);
+        }
+
+        float GetValueFromPoint(Vector3 worldInteractionPoint)
+        {
+            Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
+
+            return localInteractionPoint.z;
+        }
+
+        public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
+        {
+            float rawValue = GetValueFromRay(rayWorldOrigin, rayWorldDirection);
+
+            if (!float.IsNaN(rawValue))
+            {
+                float offset = rawValue - defaultOffset;
+
+                CurrentValue = offset * unityToValueScaler;
+            }
+        }
+
+        public override void UpdateElement(Vector3 worldInteractionPoint)
+        {
+            float rawValue = GetValueFromPoint(worldInteractionPoint);
+
+            if (!float.IsNaN(rawValue))
+            {
+                float offset = rawValue - defaultOffset;
+
+                CurrentValue = offset * unityToValueScaler;
+            }
+        }
+
+        public override void InteractionStop()
         {
 
         }
-        else
+
+        public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
-            
+            base.OnOwnershipTransferred(player);
+
+            if (player.isLocal)
+            {
+
+            }
+            else
+            {
+
+            }
         }
     }
 }

@@ -1,131 +1,118 @@
-﻿
-using iffnsStuff.iffnsVRCStuff.InteractionController;
-using JetBrains.Annotations;
-using UdonSharp;
+﻿using UdonSharp;
 using UnityEngine;
-using UnityEngine.UIElements;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class RotationInteractor : InteractionElement
+namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
-    [PublicAPI] public const int ExecutionOrder = InteractionController.ExecutionOrder + 1;
-    
-    [SerializeField] Transform movingElement;
-
-    float currentAngleDeg;
-
-    public float CurrentAngleDeg
+    public class RotationInteractor : SingleFloatInteractor
     {
-        get
+        [SerializeField] Transform movingElement;
+
+        protected override void SetUnityValue(float value)
         {
-            return currentAngleDeg;
-        }
-        set
-        {
-            currentAngleDeg = value;
-            movingElement.localRotation = Quaternion.Euler(currentAngleDeg * Vector3.forward);
-        }
-    }
-
-    InteractionController linkedInteractionController;
-    float defaultAngleDeg;
-
-    public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
-    {
-        if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
-
-        float angle = GetAngleFromRay(rayWorldOrigin, rayWorldDirection);
-
-        if (!float.IsNaN(angle))
-        {
-            defaultAngleDeg = angle - currentAngleDeg;
-            currentAngleDeg = defaultAngleDeg;
-        }
-    }
-
-    public override void InteractionStart(Vector3 worldPosition)
-    {
-        if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
-
-        float angle = GetAngleFromPoint(worldPosition);
-
-        if (!float.IsNaN(angle))
-        {
-            defaultAngleDeg = angle - currentAngleDeg;
-            currentAngleDeg = defaultAngleDeg;
-        }
-    }
-
-    float GetAngleFromRay(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
-    {
-        Plane plane = new Plane(transform.forward, transform.position);
-
-        Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
-
-        if (!plane.Raycast(selectionRay, out float rayLength))
-        {
-            Debug.LogWarning($"Plane raycast failed in {nameof(RotationInteractor)} for some reason");
-            return float.NaN;
+            movingElement.localRotation = Quaternion.Euler(value * Mathf.Rad2Deg * Vector3.forward);
         }
 
-        Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
+        InteractionController linkedInteractionController;
+        float defaultAngleRad;
 
-        return GetAngleFromPoint(worldInteractionPoint);
-    }
-
-    float GetAngleFromPoint(Vector3 worldInteractionPoint)
-    {
-        Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
-
-        //float angleRad = Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x); //Would also work but returns Rad instead of needed Deg
-        return Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward);
-    }
-
-    public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
-    {
-        Plane plane = new Plane(transform.forward, transform.position);
-
-        Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
-
-        if (!plane.Raycast(selectionRay, out float rayLength))
+        public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
-            Debug.LogWarning($"Plane raycast failed in {nameof(RotationInteractor)} for some reason");
-            return;
+            if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
+
+            float angleRad = GetAngleRadFromRay(rayWorldOrigin, rayWorldDirection);
+
+            if (!float.IsNaN(angleRad))
+            {
+                defaultAngleRad = angleRad - currentControlValue;
+                currentControlValue = defaultAngleRad;
+            }
         }
 
-        Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
+        public override void InteractionStart(Vector3 worldPosition)
+        {
+            if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-        UpdateElement(worldInteractionPoint);
-    }
+            float angleRad = GetAngleFromWorldPoint(worldPosition);
 
-    public override void UpdateElement(Vector3 worldInteractionPoint)
-    {
-        Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
+            if (!float.IsNaN(angleRad))
+            {
+                defaultAngleRad = angleRad - currentControlValue;
+                currentControlValue = defaultAngleRad;
+            }
+        }
 
-        //float angleRad = Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x); //Would also work but returns Rad instead of needed Deg
-        float angleDeg = Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward);
+        float GetAngleRadFromRay(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
+        {
+            Plane plane = new Plane(transform.forward, transform.position);
 
-        CurrentAngleDeg = angleDeg - defaultAngleDeg;
-    }
+            Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
+
+            if (!plane.Raycast(selectionRay, out float rayLength))
+            {
+                Debug.LogWarning($"Plane raycast failed in {nameof(RotationInteractor)} for some reason");
+                return float.NaN;
+            }
+
+            Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
+
+            return GetAngleFromWorldPoint(worldInteractionPoint);
+        }
+
+        float GetAngleFromWorldPoint(Vector3 worldInteractionPoint)
+        {
+            Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
+
+            return Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x);
+            //return Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward) * Mathf.Deg2Rad; //Would also work but returns Deg instead of needed Rad
+        }
+
+        public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
+        {
+            Plane plane = new Plane(transform.forward, transform.position);
+
+            Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
+
+            if (!plane.Raycast(selectionRay, out float rayLength))
+            {
+                Debug.LogWarning($"Plane raycast failed in {nameof(RotationInteractor)} for some reason");
+                return;
+            }
+
+            Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
+
+            UpdateElement(worldInteractionPoint);
+        }
+
+        public override void UpdateElement(Vector3 worldInteractionPoint)
+        {
+            Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
+
+            float angleRad = Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x); //Would also work but returns Rad instead of needed Deg
+            //float angleRad = Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward) * Mathf.Deg2Rad;
+
+            currentControlValue = angleRad - defaultAngleRad;
+        }
 
 
-    public override void InteractionStop()
-    {
-        
-    }
-
-    public override void OnOwnershipTransferred(VRCPlayerApi player)
-    {
-        base.OnOwnershipTransferred(player);
-
-        if (player.isLocal)
+        public override void InteractionStop()
         {
 
         }
-        else
+
+        public override void OnOwnershipTransferred(VRCPlayerApi player)
         {
-            
+            base.OnOwnershipTransferred(player);
+
+            if (player.isLocal)
+            {
+
+            }
+            else
+            {
+
+            }
         }
     }
 }

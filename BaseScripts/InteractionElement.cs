@@ -14,8 +14,11 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         rightIndex
     }
 
+    [DefaultExecutionOrder(ExecutionOrder)]
     public abstract class InteractionElement : UdonSharpBehaviour
     {
+        public const int ExecutionOrder = InteractionController.ExecutionOrder + 1;
+
         [SerializeField] GameObject highlightObject;
         [SerializeField] Collider[] linkedColliders;
 
