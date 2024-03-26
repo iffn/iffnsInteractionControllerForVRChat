@@ -8,45 +8,29 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     public class LinearSliderInteractor : SingleFloatInteractor
     {
         [SerializeField] Transform movingElement;
-        [SerializeField] float unityToValueScaler = 1;
-
-        float currentValue;
 
         protected override void SetUnityValue(float value)
         {
             movingElement.transform.localPosition = value * Vector3.forward;
+
+            Debug.Log($"Setting Unity value {value}");
         }
 
-        public float CurrentValue
-        {
-            get
-            {
-                return currentValue;
-            }
-
-            set
-            {
-                currentValue = Mathf.Clamp(value, minUnityValue, maxUnityValue);
-
-                movingElement.transform.localPosition = currentValue / unityToValueScaler * Vector3.forward;
-            }
-        }
-
-        float defaultOffset;
+        float defaultUnityOffset;
 
         public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
             if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-            float offset = GetValueFromRay(rayWorldOrigin, rayWorldDirection);
+            float unityOffset = GetUnityValueFromRay(rayWorldOrigin, rayWorldDirection);
 
-            if (float.IsNaN(offset))
+            if (float.IsNaN(unityOffset))
             {
-                defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+                defaultUnityOffset = CurrentUnityValue; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
             }
             else
             {
-                defaultOffset = offset - currentValue / unityToValueScaler;
+                defaultUnityOffset = unityOffset - CurrentUnityValue;
             }
         }
 
@@ -54,19 +38,19 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         {
             if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-            float offset = GetValueFromPoint(worldPosition);
+            float unityOffset = GetUnityValueFromPoint(worldPosition);
 
-            if (float.IsNaN(offset))
+            if (float.IsNaN(unityOffset))
             {
-                defaultOffset = currentValue / unityToValueScaler; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+                defaultUnityOffset = CurrentUnityValue; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
             }
             else
             {
-                defaultOffset = offset - currentValue / unityToValueScaler;
+                defaultUnityOffset = unityOffset - CurrentUnityValue;
             }
         }
 
-        float GetValueFromRay(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
+        float GetUnityValueFromRay(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
             Vector3 planeSideDirection = Vector3.Cross(transform.forward, rayWorldDirection);
 
@@ -84,10 +68,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
 
-            return GetValueFromPoint(worldInteractionPoint);
+            return GetUnityValueFromPoint(worldInteractionPoint);
         }
 
-        float GetValueFromPoint(Vector3 worldInteractionPoint)
+        float GetUnityValueFromPoint(Vector3 worldInteractionPoint)
         {
             Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
 
@@ -96,45 +80,27 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
         public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
-            float rawValue = GetValueFromRay(rayWorldOrigin, rayWorldDirection);
+            float rawUnityValue = GetUnityValueFromRay(rayWorldOrigin, rayWorldDirection);
 
-            if (!float.IsNaN(rawValue))
+            if (!float.IsNaN(rawUnityValue))
             {
-                float offset = rawValue - defaultOffset;
-
-                CurrentValue = offset * unityToValueScaler;
+                CurrentUnityValue = rawUnityValue - defaultUnityOffset;
             }
         }
 
         public override void UpdateElement(Vector3 worldInteractionPoint)
         {
-            float rawValue = GetValueFromPoint(worldInteractionPoint);
+            float rawUnityValue = GetUnityValueFromPoint(worldInteractionPoint);
 
-            if (!float.IsNaN(rawValue))
+            if (!float.IsNaN(rawUnityValue))
             {
-                float offset = rawValue - defaultOffset;
-
-                CurrentValue = offset * unityToValueScaler;
+                CurrentUnityValue = rawUnityValue - defaultUnityOffset;
             }
         }
 
         public override void InteractionStop()
         {
 
-        }
-
-        public override void OnOwnershipTransferred(VRCPlayerApi player)
-        {
-            base.OnOwnershipTransferred(player);
-
-            if (player.isLocal)
-            {
-
-            }
-            else
-            {
-
-            }
         }
     }
 }

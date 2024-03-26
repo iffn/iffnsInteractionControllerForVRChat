@@ -14,7 +14,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             movingElement.localRotation = Quaternion.Euler(value * Mathf.Rad2Deg * Vector3.forward);
         }
 
-        InteractionController linkedInteractionController;
         float defaultAngleRad;
 
         public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
@@ -99,20 +98,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         public override void InteractionStop()
         {
 
-        }
-
-        public override void OnOwnershipTransferred(VRCPlayerApi player)
-        {
-            base.OnOwnershipTransferred(player);
-
-            if (player.isLocal)
-            {
-
-            }
-            else
-            {
-
-            }
         }
     }
 }

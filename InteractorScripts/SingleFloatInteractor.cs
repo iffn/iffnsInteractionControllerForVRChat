@@ -12,6 +12,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] protected float maxControlValue;
         [SerializeField] protected float minUnityValue;
         [SerializeField] protected float maxUnityValue;
+        [SerializeField] protected bool clampValue;
 
         public static float Remap(float minInput, float maxInput, float minOutput, float maxOutput, float currentInput)
         {
@@ -21,7 +22,33 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
         protected abstract void SetUnityValue(float value);
 
-        protected float currentControlValue;
+        float controlValue;
+        protected float currentControlValue
+        {
+            get
+            {
+                return controlValue;
+            }
+            set
+            {
+                if (clampValue) controlValue = Mathf.Clamp(value, minControlValue, maxControlValue);
+                else controlValue = value;
+            }
+        }
+
+        protected float CurrentUnityValue
+        {
+            get
+            {
+                return Remap(minControlValue, maxControlValue, minUnityValue, maxUnityValue, currentControlValue);
+            }
+            set
+            {
+                if (clampValue) SetUnityValue(Mathf.Clamp(value, minUnityValue, maxUnityValue));
+                else SetUnityValue(value);
+            }
+        }
+
         public float CurrentControlValue
         {
             get
@@ -30,9 +57,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
             set
             {
-                float unityValue = Remap(minControlValue, maxControlValue, minUnityValue, maxUnityValue, currentControlValue);
+                float unityValue = Remap(minControlValue, maxControlValue, minUnityValue, maxUnityValue, value);
 
-                SetUnityValue(Mathf.Clamp(unityValue, minUnityValue, maxUnityValue));
+                if(clampValue) SetUnityValue(Mathf.Clamp(unityValue, minUnityValue, maxUnityValue));
+                else SetUnityValue(unityValue);
             }
         }
     }
