@@ -15,8 +15,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             localPosition.y = 0;
 
-            Debug.Log(localPosition);
-
             return (radius < localPosition.magnitude * 1.001f);
         }
 

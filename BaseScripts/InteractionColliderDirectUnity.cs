@@ -9,8 +9,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     {
         public override bool WorldCollisionPointIsValid(Vector3 worldPosition)
         {
-            Debug.Log("Just checking");
-
             return true;
         }
     }

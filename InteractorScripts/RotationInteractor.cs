@@ -11,6 +11,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
         protected override void SetUnityValue(float value)
         {
+            Debug.Log($"Unity value = {value}");
+
             movingElement.localRotation = Quaternion.Euler(value * Mathf.Rad2Deg * Vector3.forward);
         }
 
