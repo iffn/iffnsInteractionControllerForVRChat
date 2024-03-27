@@ -185,9 +185,9 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
-        InteractionElement GetInteractedObjectInVR(Vector3 position)
+        InteractionElement GetInteractedObjectInVR(Vector3 worldPosition)
         {
-            Collider[] colliders = Physics.OverlapSphere(position, vrInteractionDistance, interactionMask);
+            Collider[] colliders = Physics.OverlapSphere(worldPosition, vrInteractionDistance, interactionMask);
 
             foreach(Collider collider in colliders)
             {
@@ -196,7 +196,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
                 if (potentialCollider)
                 {
-                    return potentialCollider.LinkedInteractionElement;
+                    if (potentialCollider.WorldCollisionPointIsValid(worldPosition)) return potentialCollider.LinkedInteractionElement;
+                    else return null;
                 }
 
                 /*
@@ -219,7 +220,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
                     if (potentialCollider)
                     {
-                        return potentialCollider.LinkedInteractionElement;
+                        if (potentialCollider.WorldCollisionPointIsValid(hit.point)) return potentialCollider.LinkedInteractionElement;
+                        else return null;
                     }
                 }
             }

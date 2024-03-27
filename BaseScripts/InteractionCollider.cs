@@ -5,9 +5,11 @@ using VRC.Udon;
 
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
-    public class InteractionCollider : UdonSharpBehaviour
+    public abstract class InteractionCollider : UdonSharpBehaviour
     {
         [SerializeField] InteractionElement linkedInteractionElement;
+
+        public abstract bool WorldCollisionPointIsValid(Vector3 worldPosition);
 
         public bool SetupIsValid
         {
@@ -19,6 +21,11 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
+        protected virtual void Setup()
+        {
+            
+        }
+
         void Start()
         {
             if (!SetupIsValid)
@@ -27,6 +34,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 gameObject.SetActive(false);
                 return;
             }
+
+            Setup();
         }
 
         public InteractionElement LinkedInteractionElement
