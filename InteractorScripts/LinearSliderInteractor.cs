@@ -9,7 +9,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     {
         [SerializeField] Transform movingElement;
 
-        protected override void SetUnityValue(float value)
+        protected override void ApplyUnityValue(float value)
         {
             movingElement.transform.localPosition = value * Vector3.forward;
 

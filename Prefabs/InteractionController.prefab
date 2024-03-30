@@ -482,7 +482,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 2
+    SerializedFormat: 0
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -504,11 +504,9 @@ MonoBehaviour:
   rightPalmIndicator: {fileID: 7504844908787419664}
   leftIndexIndicator: {fileID: 4754168445622559006}
   rightIndexIndicator: {fileID: 6451498741818294657}
-  isCastingInDesktop: 1
+  desktopInputState: 0
   previousDesktopElement: {fileID: 0}
   newDesktopElement: {fileID: 0}
-  desktopInputActive: 0
-  desktopInputChange: 0
 --- !u!114 &1967133745887976165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -529,7 +527,7 @@ MonoBehaviour:
   AllowCollisionOwnershipTransfer: 0
   Reliable: 0
   _syncMethod: 1
-  serializedProgramAsset: {fileID: 11400000, guid: 8b7dab0bd4b96df48b87a3a66eef4c40,
+  serializedProgramAsset: {fileID: 11400000, guid: 435634905b987174e96a353c3f787c33,
     type: 2}
   programSource: {fileID: 11400000, guid: 682d76d5a3846a3429486168fd9c0fa7, type: 2}
   serializedPublicVariablesBytesString: Ai8AAAAAATIAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAFQAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AAAAAAAYBAAAAAAAAACcBBAAAAHQAeQBwAGUAAWgAAABTAHkAcwB0AGUAbQAuAEMAbwBsAGwAZQBjAHQAaQBvAG4AcwAuAEcAZQBuAGUAcgBpAGMALgBMAGkAcwB0AGAAMQBbAFsAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4ALgBJAG4AdABlAHIAZgBhAGMAZQBzAC4ASQBVAGQAbwBuAFYAYQByAGkAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AXQBdACwAIABtAHMAYwBvAHIAbABpAGIAAQEJAAAAVgBhAHIAaQBhAGIAbABlAHMALwEAAAABaAAAAFMAeQBzAHQAZQBtAC4AQwBvAGwAbABlAGMAdABpAG8AbgBzAC4ARwBlAG4AZQByAGkAYwAuAEwAaQBzAHQAYAAxAFsAWwBWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAEkAbgB0AGUAcgBmAGEAYwBlAHMALgBJAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlACwAIABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgBdAF0ALAAgAG0AcwBjAG8AcgBsAGkAYgABAAAABgEAAAAAAAAAAi8CAAAAAUkAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAGAAMQBbAFsAUwB5AHMAdABlAG0ALgBJAG4AdAAzADIALAAgAG0AcwBjAG8AcgBsAGkAYgBdAF0ALAAgAFYAUgBDAC4AVQBkAG8AbgAuAEMAbwBtAG0AbwBuAAIAAAAGAgAAAAAAAAAnAQQAAAB0AHkAcABlAAEXAAAAUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwAsACAAbQBzAGMAbwByAGwAaQBiACcBCgAAAFMAeQBtAGIAbwBsAE4AYQBtAGUAAR8AAABfAF8AXwBVAGQAbwBuAFMAaABhAHIAcABCAGUAaABhAHYAaQBvAHUAcgBWAGUAcgBzAGkAbwBuAF8AXwBfACcBBAAAAHQAeQBwAGUAARYAAABTAHkAcwB0AGUAbQAuAEkAbgB0ADMAMgAsACAAbQBzAGMAbwByAGwAaQBiABcBBQAAAFYAYQBsAHUAZQACAAAABwUHBQcF
@@ -1158,18 +1156,17 @@ PrefabInstance:
         type: 3}
       propertyPath: serializedProgramAsset
       value: 
-      objectReference: {fileID: 11400000, guid: ac0505ca96a217a44b6b49f8517542a0,
+      objectReference: {fileID: 11400000, guid: a4dfaaff13c396648a256486253437b0,
         type: 2}
     - target: {fileID: 656953404017416946, guid: 646f30b3d978bfc468e68e8e9b8d1bc1,
         type: 3}
       propertyPath: serializationData.Prefab
       value: 
-      objectReference: {fileID: 656953404017416946, guid: 646f30b3d978bfc468e68e8e9b8d1bc1,
-        type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 656953404017416946, guid: 646f30b3d978bfc468e68e8e9b8d1bc1,
         type: 3}
       propertyPath: serializationData.SerializedFormat
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 656953404017416951, guid: 646f30b3d978bfc468e68e8e9b8d1bc1,
         type: 3}

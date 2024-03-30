@@ -9,7 +9,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     {
         [SerializeField] Transform movingElement;
 
-        protected override void SetUnityValue(float value)
+        protected override void ApplyUnityValue(float value)
         {
             Debug.Log($"Unity value = {value}");
 

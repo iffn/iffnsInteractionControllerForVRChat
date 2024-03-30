@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: LinearSliderInteractor
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 2408c6dfe6d4a8643abc0eea6cf5029e,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: fd89909b4b4fa284597e96ccc08c8b5c,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -554,13 +554,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: controlValue
+      Data: currentControlValue
     - Name: $v
       Entry: 7
       Data: 32|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: controlValue
+      Data: currentControlValue
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 17
@@ -578,7 +578,7 @@ MonoBehaviour:
       Data: 
     - Name: <IsSerialized>k__BackingField
       Entry: 5
-      Data: false
+      Data: true
     - Name: _fieldAttributes
       Entry: 7
       Data: 33|System.Collections.Generic.List`1[[System.Attribute, mscorlib]], mscorlib

@@ -14,38 +14,22 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] protected float maxUnityValue;
         [SerializeField] protected bool clampValue;
 
-        public static float Remap(float minInput, float maxInput, float minOutput, float maxOutput, float currentInput)
-        {
-            float t = Mathf.InverseLerp(minInput, maxInput, currentInput);
-            return Mathf.Lerp(minOutput, maxOutput, t);
-        }
+        protected abstract void ApplyUnityValue(float value);
 
-        protected abstract void SetUnityValue(float value);
-
-        float controlValue;
-        protected float currentControlValue
-        {
-            get
-            {
-                return controlValue;
-            }
-            set
-            {
-                if (clampValue) controlValue = Mathf.Clamp(value, minControlValue, maxControlValue);
-                else controlValue = value;
-            }
-        }
-
+        public float currentControlValue;
+        
         protected float CurrentUnityValue
         {
             get
             {
-                return Remap(minControlValue, maxControlValue, minUnityValue, maxUnityValue, currentControlValue);
+                return GetUnityValueFromControlValue(currentControlValue);
             }
             set
             {
-                if (clampValue) SetUnityValue(Mathf.Clamp(value, minUnityValue, maxUnityValue));
-                else SetUnityValue(value);
+                if (clampValue) ApplyUnityValue(Mathf.Clamp(value, minUnityValue, maxUnityValue));
+                else ApplyUnityValue(value);
+
+                currentControlValue = GetControlValueFromUnityValue(value);
             }
         }
 
@@ -53,15 +37,33 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         {
             get
             {
-                return Remap(minUnityValue, maxUnityValue, minControlValue, maxControlValue, currentControlValue);
+                return currentControlValue;
             }
             set
             {
-                float unityValue = Remap(minControlValue, maxControlValue, minUnityValue, maxUnityValue, value);
+                float unityValue = GetUnityValueFromControlValue(value);
 
-                if(clampValue) SetUnityValue(Mathf.Clamp(unityValue, minUnityValue, maxUnityValue));
-                else SetUnityValue(unityValue);
+                if(clampValue) ApplyUnityValue(Mathf.Clamp(unityValue, minUnityValue, maxUnityValue));
+                else ApplyUnityValue(unityValue);
+
+                currentControlValue = value;
             }
+        }
+
+        public static float Remap(float minInput, float maxInput, float minOutput, float maxOutput, float currentInput)
+        {
+            float t = Mathf.InverseLerp(minInput, maxInput, currentInput);
+            return Mathf.Lerp(minOutput, maxOutput, t);
+        }
+
+        float GetUnityValueFromControlValue(float controlValue)
+        {
+            return Remap(minControlValue, maxControlValue, minUnityValue, maxUnityValue, controlValue);
+        }
+
+        float GetControlValueFromUnityValue(float unityValue)
+        {
+            return Remap(minUnityValue, maxUnityValue, minControlValue, maxControlValue, unityValue);
         }
     }
 }
