@@ -17,7 +17,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         }
 
         float defaultUnityOffset;
-
         public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
             if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
@@ -78,6 +77,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             return localInteractionPoint.z;
         }
 
+        //Mark
         public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
             float rawUnityValue = GetUnityValueFromRay(rayWorldOrigin, rayWorldDirection);

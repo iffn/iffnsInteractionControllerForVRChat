@@ -16,18 +16,21 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             movingElement.localRotation = Quaternion.Euler(value * Mathf.Rad2Deg * Vector3.forward);
         }
 
-        float defaultAngleRad;
+        float defaultAngleRadOffset;
 
         public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
             if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-            float angleRad = GetAngleRadFromRay(rayWorldOrigin, rayWorldDirection);
+            float unityOffsetRad = GetAngleRadFromRay(rayWorldOrigin, rayWorldDirection);
 
-            if (!float.IsNaN(angleRad))
+            if (float.IsNaN(unityOffsetRad))
             {
-                defaultAngleRad = angleRad - currentControlValue;
-                currentControlValue = defaultAngleRad;
+                defaultAngleRadOffset = CurrentUnityValue; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+            }
+            else
+            {
+                defaultAngleRadOffset = unityOffsetRad - CurrentUnityValue;
             }
         }
 
@@ -35,12 +38,15 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         {
             if (!Networking.IsOwner(gameObject)) Networking.SetOwner(localPlayer, gameObject);
 
-            float angleRad = GetAngleFromWorldPoint(worldPosition);
+            float unityOffsetRad = GetAngleFromWorldPoint(worldPosition);
 
-            if (!float.IsNaN(angleRad))
+            if (float.IsNaN(unityOffsetRad))
             {
-                defaultAngleRad = angleRad - currentControlValue;
-                currentControlValue = defaultAngleRad;
+                defaultAngleRadOffset = CurrentUnityValue; //ToDo: Find better solution. Fail if needed. This will jump and introduce weird offset.
+            }
+            else
+            {
+                defaultAngleRadOffset = unityOffsetRad - CurrentUnityValue;
             }
         }
 
@@ -69,8 +75,17 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             //return Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward) * Mathf.Deg2Rad; //Would also work but returns Deg instead of needed Rad
         }
 
+        //Mark
         public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
+            float rawUnityValue = GetAngleRadFromRay(rayWorldOrigin, rayWorldDirection);
+
+            if (!float.IsNaN(rawUnityValue))
+            {
+                CurrentUnityValue = rawUnityValue - defaultAngleRadOffset;
+            }
+
+            /*
             Plane plane = new Plane(transform.forward, transform.position);
 
             Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
@@ -84,16 +99,26 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
 
             UpdateElement(worldInteractionPoint);
+            */
         }
 
         public override void UpdateElement(Vector3 worldInteractionPoint)
         {
+            float rawUnityValue = GetAngleFromWorldPoint(worldInteractionPoint);
+
+            if (!float.IsNaN(rawUnityValue))
+            {
+                CurrentUnityValue = rawUnityValue - defaultAngleRadOffset;
+            }
+
+            /*
             Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
 
             float angleRad = Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x); //Would also work but returns Rad instead of needed Deg
             //float angleRad = Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward) * Mathf.Deg2Rad;
 
-            currentControlValue = angleRad - defaultAngleRad;
+            currentControlValue = angleRad - defaultAngleRadOffset;
+            */
         }
 
 
