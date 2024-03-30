@@ -16,7 +16,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
         protected abstract void ApplyUnityValue(float value);
 
-        public float currentControlValue;
+        float currentControlValue;
         
         protected float CurrentUnityValue
         {

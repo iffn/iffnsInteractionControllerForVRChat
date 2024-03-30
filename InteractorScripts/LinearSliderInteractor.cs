@@ -12,8 +12,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         protected override void ApplyUnityValue(float value)
         {
             movingElement.transform.localPosition = value * Vector3.forward;
-
-            Debug.Log($"Setting Unity value {value}");
         }
 
         float defaultUnityOffset;
@@ -61,7 +59,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             if (!plane.Raycast(selectionRay, out float rayLength))
             {
-                Debug.LogWarning($"Plane raycast failed in {nameof(LinearSliderInteractor)} for some reason");
+                //Debug.LogWarning($"Plane raycast failed in {nameof(LinearSliderInteractor)} for some reason"); //-> Likely pointing away from the plane
                 return -float.NaN; //No idea why, but I think this sometimes fails
             }
 

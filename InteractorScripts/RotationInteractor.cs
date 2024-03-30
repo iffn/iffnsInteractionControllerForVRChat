@@ -11,8 +11,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
         protected override void ApplyUnityValue(float value)
         {
-            Debug.Log($"Unity value = {value}");
-
             movingElement.localRotation = Quaternion.Euler(value * Mathf.Rad2Deg * Vector3.forward);
         }
 
@@ -58,7 +56,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             if (!plane.Raycast(selectionRay, out float rayLength))
             {
-                Debug.LogWarning($"Plane raycast failed in {nameof(RotationInteractor)} for some reason");
+                //Debug.LogWarning($"Plane raycast failed in {nameof(RotationInteractor)} for some reason"); //-> Likely pointing away from the plane
                 return float.NaN;
             }
 
@@ -71,8 +69,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         {
             Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
 
-            return Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x);
-            //return Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward) * Mathf.Deg2Rad; //Would also work but returns Deg instead of needed Rad
+            float angleRad = Mathf.Atan2(-localInteractionPoint.x, localInteractionPoint.y); //Returns +-180° -> current center assumed to be at the top
+            //float angleRad = Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward) * Mathf.Deg2Rad; //Would also work but returns Deg instead of needed Rad, proper center needed
+
+            return angleRad;
         }
 
         //Mark
