@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -259,7 +259,7 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 1879736342364146526}
   highlightObject: {fileID: 1155952634477980398}
   linkedColliders:
-  - {fileID: 0}
+  - {fileID: 3793604252566959381}
   minControlValue: -1
   maxControlValue: 1
   minUnityValue: -1
@@ -443,7 +443,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 

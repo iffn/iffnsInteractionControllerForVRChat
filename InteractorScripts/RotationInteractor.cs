@@ -9,6 +9,11 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     {
         [SerializeField] Transform movingElement;
 
+        protected override float GetCurrentUnityValueFromUnity()
+        {
+            return movingElement.localRotation.eulerAngles.z * Mathf.Deg2Rad;
+        }
+
         protected override void ApplyUnityValue(float value)
         {
             movingElement.localRotation = Quaternion.Euler(value * Mathf.Rad2Deg * Vector3.forward);

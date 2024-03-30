@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 3866533072163587621}
   - component: {fileID: 6883648726474169529}
   m_Layer: 0
-  m_Name: Visual interactor
+  m_Name: Default visual interactor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -472,7 +472,7 @@ GameObject:
   - component: {fileID: 6677857267667305178}
   - component: {fileID: 1524230765571720570}
   m_Layer: 0
-  m_Name: Visual holder
+  m_Name: Default visual holder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -556,7 +556,7 @@ GameObject:
   - component: {fileID: 1623212014745401780}
   - component: {fileID: 3320364158163231637}
   m_Layer: 18
-  m_Name: Interactor collider
+  m_Name: Default interactor collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -613,7 +613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 

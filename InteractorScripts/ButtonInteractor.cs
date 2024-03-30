@@ -2,6 +2,7 @@
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Serialization.OdinSerializer;
 
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
@@ -11,7 +12,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         bool pressed;
 
         [SerializeField] UdonSharpBehaviour[] linkedInteractionReceiverElements;
-        [SerializeField] string stateChangeMessage;
+        [SerializeField] string interactionStartMessage;
+        [SerializeField] string interactionStopMessage;
 
         public bool Pressed
         {
@@ -25,28 +27,28 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
-        void SendMessage()
+        void SendMessageToReceivers(string message)
         {
             foreach(UdonSharpBehaviour linkedReceiverElement in linkedInteractionReceiverElements)
             {
-                linkedReceiverElement.SendCustomEvent(stateChangeMessage);
+                linkedReceiverElement.SendCustomEvent(message);
             }
         }
 
-        void startFunciton()
+        void StartFunciton()
         {
             pressed = true;
-            SendMessage();
+            SendMessageToReceivers(interactionStartMessage);
         }
 
         public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
-            startFunciton();
+            StartFunciton();
         }
 
         public override void InteractionStart(Vector3 worldPosition)
         {
-            startFunciton();
+            StartFunciton();
         }
 
         public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
@@ -62,7 +64,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         public override void InteractionStop()
         {
             pressed = false;
-            SendMessage();
+            SendMessageToReceivers(interactionStopMessage);
         }
     }
 }

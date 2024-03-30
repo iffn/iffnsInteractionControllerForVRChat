@@ -36,10 +36,15 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         protected bool inVR;
         protected VRCPlayerApi localPlayer;
 
-        private void Start()
+        protected virtual void Setup()
         {
             inVR = Networking.LocalPlayer.IsUserInVR();
             localPlayer = Networking.LocalPlayer;
+        }
+
+        private void Start()
+        {
+            Setup();
         }
 
         public abstract void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection);

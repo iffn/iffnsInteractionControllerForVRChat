@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 480195704825597586}
   - component: {fileID: 6795864069634983055}
   m_Layer: 0
-  m_Name: Base
+  m_Name: Default visual Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165,7 +165,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 5674158367103316510}
   - component: {fileID: 503234332679844802}
   m_Layer: 18
-  m_Name: HandleCollider
+  m_Name: Default HandleCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -288,7 +288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializationData:
-    SerializedFormat: 0
+    SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -336,7 +336,7 @@ GameObject:
   - component: {fileID: 1692500881011398000}
   - component: {fileID: 6689799097470334674}
   m_Layer: 0
-  m_Name: Center
+  m_Name: Default visual Center
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -419,7 +419,7 @@ GameObject:
   - component: {fileID: 6376251211178255887}
   - component: {fileID: 35730739725831101}
   m_Layer: 0
-  m_Name: HandleVisual
+  m_Name: Default HandleVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

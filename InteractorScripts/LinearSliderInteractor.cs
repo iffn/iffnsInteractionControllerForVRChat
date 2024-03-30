@@ -9,6 +9,11 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     {
         [SerializeField] Transform movingElement;
 
+        protected override float GetCurrentUnityValueFromUnity()
+        {
+            return movingElement.transform.localPosition.z;
+        }
+
         protected override void ApplyUnityValue(float value)
         {
             movingElement.transform.localPosition = value * Vector3.forward;

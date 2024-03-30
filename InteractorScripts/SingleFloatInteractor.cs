@@ -15,9 +15,18 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] protected bool clampValue;
 
         protected abstract void ApplyUnityValue(float value);
+        protected abstract float GetCurrentUnityValueFromUnity();
 
         float currentControlValue;
-        
+
+        protected override void Setup()
+        {
+            base.Setup();
+
+            //Setting default value
+            CurrentUnityValue = GetCurrentUnityValueFromUnity();
+        }
+
         protected float CurrentUnityValue
         {
             get
