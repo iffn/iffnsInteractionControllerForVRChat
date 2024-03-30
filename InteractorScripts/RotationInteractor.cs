@@ -96,7 +96,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
-
         public override void InteractionStop()
         {
 
