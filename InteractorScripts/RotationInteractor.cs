@@ -84,22 +84,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             {
                 CurrentUnityValue = rawUnityValue - defaultAngleRadOffset;
             }
-
-            /*
-            Plane plane = new Plane(transform.forward, transform.position);
-
-            Ray selectionRay = new Ray(rayWorldOrigin, rayWorldDirection);
-
-            if (!plane.Raycast(selectionRay, out float rayLength))
-            {
-                Debug.LogWarning($"Plane raycast failed in {nameof(RotationInteractor)} for some reason");
-                return;
-            }
-
-            Vector3 worldInteractionPoint = rayWorldOrigin + rayWorldDirection.normalized * rayLength;
-
-            UpdateElement(worldInteractionPoint);
-            */
         }
 
         public override void UpdateElement(Vector3 worldInteractionPoint)
@@ -110,15 +94,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             {
                 CurrentUnityValue = rawUnityValue - defaultAngleRadOffset;
             }
-
-            /*
-            Vector3 localInteractionPoint = transform.InverseTransformPoint(worldInteractionPoint);
-
-            float angleRad = Mathf.Atan2(localInteractionPoint.y, localInteractionPoint.x); //Would also work but returns Rad instead of needed Deg
-            //float angleRad = Vector3.SignedAngle(Vector3.right, localInteractionPoint, Vector3.forward) * Mathf.Deg2Rad;
-
-            currentControlValue = angleRad - defaultAngleRadOffset;
-            */
         }
 
 
