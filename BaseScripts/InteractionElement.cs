@@ -22,6 +22,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] GameObject highlightObject;
         [SerializeField] Collider[] linkedColliders;
 
+        int highlightCounter = 0;
+
         public bool InteractionCollidersEnabled
         {
             set
@@ -58,7 +60,14 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         {
             set
             {
-                InputManager.EnableObjectHighlight(highlightObject, value);
+                bool wasOn = highlightCounter > 0;
+
+                if (value) highlightCounter++;
+                else highlightCounter--;
+
+                bool shouldBeOn = highlightCounter > 0;
+
+                if(wasOn != shouldBeOn) InputManager.EnableObjectHighlight(highlightObject, shouldBeOn);
             }
         }
     }
