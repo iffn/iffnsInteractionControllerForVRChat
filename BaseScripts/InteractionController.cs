@@ -84,8 +84,8 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         InteractionElement previousRightIndexObject;
         InteractionElement newRightIndexObject;
 
-        Vector3 fingerInteractionOffset = 0.058f * Vector3.forward;
-        Vector3 palmInteractionOffset = 0.01f * Vector3.down;
+        Vector3 fingerInteractionOffset = 0.058f * Vector3.up;
+        Vector3 palmInteractionOffset = 0.01f * Vector3.back;
 
         //Runtime variables Desktop
         public InputStates desktopInputState;
@@ -240,10 +240,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             if (fingerLength == 0) fingerLength = localPlayer.GetAvatarEyeHeightAsMeters() * 0.058f;
 
-            fingerInteractionOffset = fingerLength * Vector3.right;
+            fingerInteractionOffset = fingerLength * 1.5f * fingerInteractionOffset.normalized;
 
             //Palm
-            palmInteractionOffset = fingerLength * 0.3f * Vector3.down;
+            palmInteractionOffset = fingerLength * 0.3f * palmInteractionOffset.normalized;
 
             //Indicator
             vrInteractionDistance = fingerLength * 0.2f;
@@ -336,17 +336,19 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             if (inVR)
             {
-                VRCPlayerApi.TrackingData leftHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                VRCPlayerApi.TrackingData rightHand = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-                Vector3 leftFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftIndexProximal);
-                Quaternion leftFingerRotation = localPlayer.GetBoneRotation(HumanBodyBones.LeftIndexProximal);
-                Vector3 rightFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.RightIndexProximal);
-                Quaternion rightFingerRotation = localPlayer.GetBoneRotation(HumanBodyBones.RightIndexProximal);
+                VRCPlayerApi.TrackingData leftTrackingData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
+                VRCPlayerApi.TrackingData rightTrackingData = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+                
+                Quaternion leftHandRotation = localPlayer.GetBoneRotation(HumanBodyBones.LeftHand);
+                Quaternion rightHandRotation = localPlayer.GetBoneRotation(HumanBodyBones.RightHand);
 
-                leftPalmInteractionPosition = leftHand.position + leftHand.rotation * (-palmInteractionOffset);
-                rightPalmInteractionPosition = rightHand.position + rightHand.rotation * palmInteractionOffset;
-                leftIndexInteractionPosition = leftFingerPosition + leftHand.rotation * fingerInteractionOffset;
-                rightIndexInteractionPosition = rightFingerPosition + rightHand.rotation * fingerInteractionOffset;
+                Vector3 leftIndexFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftIndexProximal);
+                Vector3 rightIndexFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.RightIndexProximal);
+
+                leftPalmInteractionPosition = leftTrackingData.position;
+                rightPalmInteractionPosition = rightTrackingData.position;
+                leftIndexInteractionPosition = leftIndexFingerPosition + leftHandRotation * fingerInteractionOffset;
+                rightIndexInteractionPosition = rightIndexFingerPosition + rightHandRotation * fingerInteractionOffset;
 
                 leftIndexIndicator.position = leftIndexInteractionPosition;
                 rightIndexIndicator.position = rightIndexInteractionPosition;

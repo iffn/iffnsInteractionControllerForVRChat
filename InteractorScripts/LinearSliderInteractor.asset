@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: LinearSliderInteractor
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 569095dc571c9364d9b00820d30c2276,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 2408c6dfe6d4a8643abc0eea6cf5029e,
     type: 2}
   udonAssembly: 
   assemblyError: 
