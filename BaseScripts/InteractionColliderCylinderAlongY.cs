@@ -15,7 +15,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             localPosition.y = 0;
 
-            return (radius < localPosition.magnitude * 1.001f);
+            return (radius > localPosition.magnitude);
         }
 
         protected override void Setup()
@@ -26,7 +26,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             size.y = 0;
 
-            radius = size.magnitude * 0.5f;
+            radius = size.magnitude * 0.501f; // Slight addition over 0.5f to avoid edge flickering
         }
     }
 }
