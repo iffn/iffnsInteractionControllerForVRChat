@@ -1,11 +1,8 @@
-﻿using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
-using BestHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO.Pem;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using System;
 using UdonSharp;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.SDKBase.Editor;
@@ -41,7 +38,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] private RectTransform uiCalibrator;
         [SerializeField] private float cursorSpeedUI;
         [SerializeField] Camera linkedGrabCamera;
-        [SerializeField] Transform referenceTransform;
         [SerializeField] LayerMask interactionMask;
         [SerializeField] Transform leftPalmIndicator;
         [SerializeField] Transform rightPalmIndicator;
@@ -49,18 +45,16 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] Transform rightIndexIndicator;
 
         //Fixed variables
-        bool useIsGrab;
         bool inVR;
+        bool inputUseAndGrabAreTheSame;
         VRCPlayerApi localPlayer;
         float vrInteractionDistance;
-        bool useAndGrabAreTheSame;
-
 
         bool triggerHoldBehavior = true;
         bool grabHoldBehavior = true;
 
-
         //Runtime variables General
+        Transform referenceTransformCanBeNull;
         int fixedUpdateCounter = 0;
         int fixedUpdateClearanceByLateUpdate;
 
@@ -95,30 +89,20 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         const int canvasSizeY = 540;
         const float halfDeg2Rad = Mathf.Deg2Rad * 0.5f;
         bool calibrated = false;
-        Vector3 localRayOrigin;
-        Vector3 localRayDirection;
-
-        public Vector3 WorldRayOrigin
-        {
-            get
-            {
-                return referenceTransform.InverseTransformPoint(localRayOrigin);
-            }
-        }
-
-        public Vector3 WorldRayDirection
-        {
-            get
-            {
-                return referenceTransform.TransformDirection(localRayDirection);
-            }
-        }
+        Vector3 localDesktopRayOrigin;
+        Vector3 localDesktopRayDirection;
+        bool getDesktopObjectActive = false;
 
         public Transform ReferenceTransform
         {
             set
             {
-                referenceTransform = value;
+                referenceTransformCanBeNull = value;
+            }
+            get
+            {
+                if (referenceTransformCanBeNull) return referenceTransformCanBeNull;
+                else return transform;
             }
         }
         
@@ -169,7 +153,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                     if (previousElement) previousElement.InteractionStart(worldPosition);
                     break;
                 case InputStates.on:
-                    if (previousElement) previousElement.UpdateElement(worldPosition);
+                    if (previousElement) previousElement.UpdateElement(worldPosition);  
                     break;
                 case InputStates.justOff:
                     if (previousElement != newElement)
@@ -188,6 +172,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         InteractionElement GetInteractedObjectInVR(Vector3 worldPosition)
         {
             Collider[] colliders = Physics.OverlapSphere(worldPosition, vrInteractionDistance, interactionMask);
+            //Collider[] colliders = Physics.OverlapSphereNonAlloc(worldPosition, vrInteractionDistance, interactionMask); //ToDo: Try to implement this
 
             foreach(Collider collider in colliders)
             {
@@ -276,9 +261,9 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             localPlayer = Networking.LocalPlayer;
             inVR = localPlayer.IsUserInVR();
 
-            if (referenceTransform == null) referenceTransform = transform;
+            if (ReferenceTransform == null) ReferenceTransform = transform;
 
-            useAndGrabAreTheSame = !inVR;
+            inputUseAndGrabAreTheSame = !inVR;
 
             string[] controllers = Input.GetJoystickNames();
 
@@ -286,7 +271,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             {
                 if (!controller.ToLower().Contains("vive")) continue;
 
-                useAndGrabAreTheSame = true;
+                inputUseAndGrabAreTheSame = true;
                 break;
             }
 
@@ -323,13 +308,15 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             {
                 desktopInputState = GetNewInputState(desktopInputState, Input.GetMouseButton(0));
 
-                UpdateRayInteraction(previousDesktopElement, newDesktopElement, desktopInputState, WorldRayOrigin, WorldRayDirection);
+                Vector3 worldRayOrigin = ReferenceTransform.TransformPoint(localDesktopRayOrigin);
+                Vector3 worldRayDirection = ReferenceTransform.TransformDirection(localDesktopRayDirection);
+
+                UpdateRayInteraction(previousDesktopElement, newDesktopElement, desktopInputState, worldRayOrigin, worldRayDirection);
 
                 if (desktopInputState == InputStates.off || desktopInputState == InputStates.justOff) previousDesktopElement = newDesktopElement;
             }
         }
 
-        //public override void PostLateUpdate()
         public override void PostLateUpdate()
         {
             fixedUpdateClearanceByLateUpdate = fixedUpdateCounter;
@@ -345,23 +332,25 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 Vector3 leftIndexFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.LeftIndexProximal);
                 Vector3 rightIndexFingerPosition = localPlayer.GetBonePosition(HumanBodyBones.RightIndexProximal);
 
-                leftPalmInteractionPosition = leftTrackingData.position;
-                rightPalmInteractionPosition = rightTrackingData.position;
                 leftIndexInteractionPosition = leftIndexFingerPosition + leftHandRotation * fingerInteractionOffset;
                 rightIndexInteractionPosition = rightIndexFingerPosition + rightHandRotation * fingerInteractionOffset;
+                leftPalmInteractionPosition = leftTrackingData.position;
+                rightPalmInteractionPosition = rightTrackingData.position;
 
                 leftIndexIndicator.position = leftIndexInteractionPosition;
                 rightIndexIndicator.position = rightIndexInteractionPosition;
                 leftPalmIndicator.position = leftPalmInteractionPosition;
                 rightPalmIndicator.position = rightPalmInteractionPosition;
 
-                newLeftIndexObject = GetInteractedObjectInVR(leftIndexInteractionPosition);
-                newRightIndexObject = GetInteractedObjectInVR(rightIndexInteractionPosition);
-                newLeftPalmObject = GetInteractedObjectInVR(leftPalmInteractionPosition);
-                newRightPalmObject = GetInteractedObjectInVR(rightPalmInteractionPosition);
+                leftIndexInteractionPosition = ReferenceTransform.InverseTransformPoint(leftIndexInteractionPosition);
+                rightIndexInteractionPosition = ReferenceTransform.InverseTransformPoint(rightIndexInteractionPosition);
+                leftPalmInteractionPosition = ReferenceTransform.InverseTransformPoint(leftPalmInteractionPosition);
+                rightPalmInteractionPosition = ReferenceTransform.InverseTransformPoint(rightPalmInteractionPosition);
             }
             else
             {
+                getDesktopObjectActive = false;
+
                 if (Input.GetKeyDown(KeyCode.Tab))
                 {
                     cursorPosition = Vector2.zero;
@@ -405,7 +394,6 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
                         VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
 
-
                         Vector3 localHeading = new Vector3
                         (
                             cursorPositionActual.x,
@@ -413,10 +401,11 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                             540 / Mathf.Tan(linkedFOVDetector.DetectedFOV * halfDeg2Rad)
                         );
 
-                        localRayOrigin = referenceTransform.InverseTransformPoint(head.position);
-                        localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * localHeading);
+                        localDesktopRayOrigin = ReferenceTransform.InverseTransformPoint(head.position);
+                        localDesktopRayDirection = ReferenceTransform.InverseTransformDirection(head.rotation * localHeading);
 
-                        newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * localHeading);
+                        getDesktopObjectActive = true;
+                        
 
                         if (Input.GetKeyDown(KeyCode.Q))
                         {
@@ -430,14 +419,36 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 {
                     VRCPlayerApi.TrackingData head = localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
 
-                    localRayOrigin = referenceTransform.InverseTransformPoint(head.position);
-                    localRayDirection = referenceTransform.InverseTransformDirection(head.rotation * Vector3.forward);
+                    localDesktopRayOrigin = ReferenceTransform.InverseTransformPoint(head.position);
+                    localDesktopRayDirection = ReferenceTransform.InverseTransformDirection(head.rotation * Vector3.forward);
 
-                    newDesktopElement = GetInteractedObjectInDesktop(head.position, head.rotation * Vector3.forward);
+                    getDesktopObjectActive = true;
                 }
             }
         }
 
+        private void FixedUpdate()
+        {
+            if (inVR)
+            {
+                newLeftIndexObject = GetInteractedObjectInVR(ReferenceTransform.TransformPoint(leftIndexInteractionPosition));
+                newRightIndexObject = GetInteractedObjectInVR(ReferenceTransform.TransformPoint(rightIndexInteractionPosition));
+                newLeftPalmObject = GetInteractedObjectInVR(ReferenceTransform.TransformPoint(leftPalmInteractionPosition));
+                newRightPalmObject = GetInteractedObjectInVR(ReferenceTransform.TransformPoint(rightPalmInteractionPosition));
+            }
+            else
+            {
+                if (getDesktopObjectActive)
+                {
+                    Vector3 rayOrigin = ReferenceTransform.TransformPoint(localDesktopRayOrigin);
+                    Vector3 rayDirection = ReferenceTransform.TransformDirection(localDesktopRayDirection);
+
+                    newDesktopElement = GetInteractedObjectInDesktop(rayOrigin, rayDirection);
+                }
+            }
+        }
+
+        //VRChat functions
         public override void OnAvatarEyeHeightChanged(VRCPlayerApi player, float prevEyeHeightAsMeters)
         {
             if (!player.isLocal) return;
