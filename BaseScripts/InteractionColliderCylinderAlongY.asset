@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: InteractionColliderCylinderAlongY
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 72dc0e78d8094bc4ca9c9ec75abe3f59,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: b3e9c3ceede407842b2a484819c33c90,
     type: 2}
   udonAssembly: 
   assemblyError: 

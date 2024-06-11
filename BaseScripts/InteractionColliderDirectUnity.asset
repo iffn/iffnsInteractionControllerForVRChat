@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: InteractionColliderDirectUnity
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: cbd9c30f5d890f64aaee195954c6e992,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 27d55e79f9aa48b47859907d55991dc6,
     type: 2}
   udonAssembly: 
   assemblyError: 
