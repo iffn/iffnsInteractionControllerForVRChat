@@ -56,7 +56,6 @@ public class SingleFloatSyncController : UdonSharpBehaviour
         }
         else
         {
-            Debug.Log("Stop smoothing");
             smoothingActive = false;
             MainValue = syncedValue;
             InformReceiver();
