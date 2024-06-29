@@ -26,7 +26,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
             size.y = 0;
 
-            radius = size.magnitude * 0.501f; // Slight addition over 0.5f to avoid edge flickering
+            radius = size.magnitude * 1.414f * 0.501f; // Slight addition over 0.5f to avoid edge flickering
         }
     }
 }
