@@ -301,6 +301,11 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                 leftGrabState = GetNewInputState(leftGrabState, Input.GetAxis("Oculus_CrossPlatform_PrimaryHandTrigger") > 0.9f);
                 rightGrabState = GetNewInputState(rightGrabState, Input.GetAxis("Oculus_CrossPlatform_SecondaryHandTrigger") > 0.9f);
 
+                leftIndexInteractionPosition = ReferenceTransform.TransformPoint(leftIndexInteractionPosition);
+                rightIndexInteractionPosition = ReferenceTransform.TransformPoint(rightIndexInteractionPosition);
+                leftPalmInteractionPosition = ReferenceTransform.TransformPoint(leftPalmInteractionPosition);
+                rightPalmInteractionPosition = ReferenceTransform.TransformPoint(rightPalmInteractionPosition);
+
                 UpdateRayInteraction(previousLeftPalmObject, newLeftPalmObject, leftGrabState, leftPalmInteractionPosition);
                 UpdateRayInteraction(previousRightPalmObject, newRightPalmObject, rightGrabState, rightPalmInteractionPosition);
                 UpdateRayInteraction(previousLeftIndexObject, newLeftIndexObject, leftTriggerState, leftIndexInteractionPosition);

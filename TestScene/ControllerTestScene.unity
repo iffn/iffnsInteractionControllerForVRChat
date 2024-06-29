@@ -244,7 +244,7 @@ PrefabInstance:
     - target: {fileID: 1055321711490392694, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: blueprintId
-      value: wrld_baf21c53-7dfc-4d77-8138-e8694333e955
+      value: wrld_0ea0d963-eb28-4ca5-aca5-eb54d9edcd63
       objectReference: {fileID: 0}
     - target: {fileID: 1094421957795580606, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
@@ -330,7 +330,7 @@ PrefabInstance:
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.size
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
@@ -796,27 +796,27 @@ PrefabInstance:
         type: 3}
       propertyPath: DynamicMaterials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 5e03e16612f592946b8b15748a4efb50, type: 2}
+      objectReference: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[1]
       value: 
-      objectReference: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+      objectReference: {fileID: 2100000, guid: 5e03e16612f592946b8b15748a4efb50, type: 2}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[2]
       value: 
-      objectReference: {fileID: 2100000, guid: c1500c78c27524946892ad97f845211f, type: 2}
+      objectReference: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[3]
       value: 
-      objectReference: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+      objectReference: {fileID: 2100000, guid: c1500c78c27524946892ad97f845211f, type: 2}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[4]
       value: 
-      objectReference: {fileID: 2100000, guid: e2de9c3c6c729c546820ccf15e78d974, type: 2}
+      objectReference: {fileID: 2100000, guid: 534976cc839cdf74c8828812d9d8b9cd, type: 2}
     - target: {fileID: 6759095419728963412, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: DynamicMaterials.Array.data[5]
@@ -2736,6 +2736,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: RotationInteractorWithHandle
       objectReference: {fileID: 0}
+    - target: {fileID: 3927104967237736990, guid: a4318bb6a345dcd4ca7648080169c2e8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4146584806507656446, guid: a4318bb6a345dcd4ca7648080169c2e8,
         type: 3}
       propertyPath: serializationData.Prefab
@@ -3067,7 +3072,7 @@ PrefabInstance:
     - target: {fileID: 4947998511768123882, guid: bda8cac846388484e879bf5ae2daea9a,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.323
+      value: -1.411
       objectReference: {fileID: 0}
     - target: {fileID: 4947998511768123882, guid: bda8cac846388484e879bf5ae2daea9a,
         type: 3}
