@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: RotationInteractor
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: b328b974edc250d44a4ca9bfdad0f393,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 76db8ed88b8c681478625951df122f74,
     type: 2}
   udonAssembly: 
   assemblyError: 

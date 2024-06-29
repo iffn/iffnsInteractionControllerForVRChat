@@ -1,8 +1,5 @@
 ﻿using UdonSharp;
 using UnityEngine;
-using VRC.SDKBase;
-using VRC.Udon;
-using VRC.Udon.Serialization.OdinSerializer;
 
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {

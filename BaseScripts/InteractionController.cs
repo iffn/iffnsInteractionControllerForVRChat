@@ -1,12 +1,8 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿//#define desktopRaycastDebug
+
 using UdonSharp;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 using VRC.SDKBase;
-using VRC.SDKBase.Editor;
-using VRC.Udon.Common;
 
 namespace iffnsStuff.iffnsVRCStuff.InteractionController
 {
@@ -22,7 +18,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
     [DefaultExecutionOrder(ExecutionOrder)]
     public class InteractionController : UdonSharpBehaviour
     {
-        [PublicAPI] public const int ExecutionOrder = 0;
+        public const int ExecutionOrder = 0;
 
         /*
         Created with additional inputs from KitKat
@@ -43,6 +39,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
         [SerializeField] Transform rightPalmIndicator;
         [SerializeField] Transform leftIndexIndicator;
         [SerializeField] Transform rightIndexIndicator;
+
+#if desktopRaycastDebug
+        public GameObject raycastHitDebug;
+#endif
 
         //Fixed variables
         bool inVR;
@@ -150,7 +150,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
                     }
                     break;
                 case InputStates.justOn:
-                    if (previousElement) previousElement.InteractionStart(worldPosition);
+                    if (previousElement)
+                    {
+                        previousElement.InteractionStart(worldPosition);
+                    }
                     break;
                 case InputStates.on:
                     if (previousElement) previousElement.UpdateElement(worldPosition);  
@@ -201,6 +204,10 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             {
                 if (hit.collider != null) //At least VRChat client sim canvas hit collider somehow null
                 {
+#if desktopRaycastDebug
+                    raycastHitDebug = hit.collider.gameObject;
+#endif
+
                     InteractionCollider potentialCollider = hit.transform.GetComponent<InteractionCollider>();
 
                     if (potentialCollider)
