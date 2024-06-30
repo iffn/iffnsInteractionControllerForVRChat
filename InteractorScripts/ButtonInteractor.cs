@@ -32,7 +32,7 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
             }
         }
 
-        void StartFunciton()
+        void StartFunction()
         {
             pressed = true;
             SendMessageToReceivers(interactionStartMessage);
@@ -40,12 +40,12 @@ namespace iffnsStuff.iffnsVRCStuff.InteractionController
 
         public override void InteractionStart(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
         {
-            StartFunciton();
+            StartFunction();
         }
 
         public override void InteractionStart(Vector3 worldPosition)
         {
-            StartFunciton();
+            StartFunction();
         }
 
         public override void UpdateElement(Vector3 rayWorldOrigin, Vector3 rayWorldDirection)
